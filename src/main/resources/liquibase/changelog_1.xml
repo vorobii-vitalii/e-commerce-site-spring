@@ -1,0 +1,130 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- Create users table -->
+    <changeSet id="1.0.0" author="vitalii.vorobii">
+        <createTable tableName="users">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="username" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+    </changeSet>
+
+    <!-- Create roles table -->
+    <changeSet id="1.0.1" author="vitalii.vorobii">
+        <createTable tableName="roles">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="name" type="VARCHAR(2000)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+    </changeSet>
+
+    <!-- Create users and roles Many to Many relationship -->
+    <changeSet id="1.0.2" author="vitalii.vorobii">
+
+        <createTable tableName="user_roles">
+
+            <column name="user_id" type="BIGINT">
+            </column>
+
+            <column name="role_id" type="BIGINT" >
+            </column>
+
+        </createTable>
+
+    </changeSet>
+
+    <!-- Add constrains to user_roles table -->
+    <changeSet id="1.0.3" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="user_roles"
+                baseColumnNames="user_id"
+                constraintName="fk_user_roles_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
+
+    </changeSet>
+
+    <!-- Add constrains to user_roles table -->
+    <changeSet id="1.0.4" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="user_roles"
+                baseColumnNames="role_id"
+                constraintName="fk_user_roles_role"
+                referencedTableName="roles"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
+
+    </changeSet>
+
+    <!-- Add customer and admin role -->
+    <changeSet id="1.0.5" author="vitalii.vorobii">
+
+        <insert tableName="roles">
+            <column name="name" value="ROLE_CUSTOMER" />
+        </insert>
+
+        <insert tableName="roles">
+            <column name="name" value="ROLE_ADMIN" />
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>
