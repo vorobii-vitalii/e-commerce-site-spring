@@ -3,6 +3,7 @@ package com.commerce.web.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.util.List;
 
 @Entity
@@ -10,8 +11,12 @@ import java.util.List;
 @Data
 public class User extends BaseEntity {
 
-    @Column(name="username")
-    private String username;
+    @Email
+    @Column(name="email")
+    private String email;
+
+    @Column(name="password")
+    private String password;
 
     @Column(name="first_name")
     private String firstName;
@@ -19,11 +24,6 @@ public class User extends BaseEntity {
     @Column(name="last_name")
     private String lastName;
 
-    @Column(name="email")
-    private String email;
-
-    @Column(name="password")
-    private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -43,8 +43,14 @@ public class User extends BaseEntity {
     )
     private List<Role> roles;
 
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name="user_verification_id", referencedColumnName = "id")
+    private UserVerification userVerification;
+
+
     public String toString() {
-        return "User #" + getId () + " \nname = "+getUsername ();
+        return "User #" + getId ();
     }
 
 }
