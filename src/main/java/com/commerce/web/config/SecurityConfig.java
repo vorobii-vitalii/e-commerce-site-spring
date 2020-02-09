@@ -1,11 +1,11 @@
 package com.commerce.web.config;
 
+import com.commerce.web.constants.UserRolesConstants;
 import com.commerce.web.security.jwt.JwtConfigurer;
 import com.commerce.web.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +26,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String ADMIN_ENDPOINT = "/api/v1/admin/**";
     private static final String LOGIN_ENDPOINT = "/api/v1/auth/login";
     private static final String REGISTER_ENDPOINT = "/api/v1/auth/register";
+    private static final String VERIFY_USER_ENDPOINT = "/api/v1/auth/verify/**";
+    private static final String RESENT_VERIFY_USER_ENDPOINT = "/api/v1/auth/resend/**";
+    private static final String EXAMPLE_MAIL = "/mail/example";
+
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
@@ -46,12 +50,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement ().sessionCreationPolicy ( SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests ()
-                .antMatchers ( LOGIN_ENDPOINT ).permitAll () // Login endpoint is available for all
-                .antMatchers ( REGISTER_ENDPOINT ).permitAll () // As well as register one
-                .antMatchers ( ADMIN_ENDPOINT).hasRole ( "ADMIN" ) // Admin endpoints require role of Admin!
+                /*
+                    Such endpoints as: login,register,verify and resend verification are permitted to all
+                 */
+                .antMatchers ( LOGIN_ENDPOINT ).permitAll ()
+                .antMatchers ( REGISTER_ENDPOINT ).permitAll ()
+                .antMatchers ( VERIFY_USER_ENDPOINT ).permitAll ()
+                .antMatchers ( RESENT_VERIFY_USER_ENDPOINT ).permitAll ()
+                .antMatchers ( ADMIN_ENDPOINT).hasRole ( UserRolesConstants.ADMIN ) // Admin endpoints require role of Admin!
                 .anyRequest ().authenticated () // Other ones require basic authentication
                 .and ()
-                .apply ( new JwtConfigurer ( jwtTokenProvider)); // Apply custom JWT filte/r
+                .apply ( new JwtConfigurer ( jwtTokenProvider)); // Apply custom JWT filter
 
 
     }
