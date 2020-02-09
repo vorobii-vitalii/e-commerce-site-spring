@@ -11,7 +11,7 @@
                 <constraints primaryKey="true" nullable="false" />
             </column>
 
-            <column name="username" type="VARCHAR(100)">
+            <column name="email" type="VARCHAR(200)">
                 <constraints nullable="false" unique="true"/>
             </column>
 
@@ -25,6 +25,9 @@
 
             <column name="password" type="VARCHAR(255)">
                 <constraints nullable="false"/>
+            </column>
+
+            <column name="user_verification_id" type="BIGINT">
             </column>
 
             <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
@@ -69,8 +72,40 @@
         </createTable>
     </changeSet>
 
+    <!-- Create user verification table -->
+    <changeSet id="1.02" author="vitalii.vorobii">
+        <createTable tableName="users_verification">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="token" type="VARCHAR(200)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+
+
+        </createTable>
+    </changeSet>
+
     <!-- Create users and roles Many to Many relationship -->
-    <changeSet id="1.0.2" author="vitalii.vorobii">
+    <changeSet id="1.0.3" author="vitalii.vorobii">
 
         <createTable tableName="user_roles">
 
@@ -85,7 +120,7 @@
     </changeSet>
 
     <!-- Add constrains to user_roles table -->
-    <changeSet id="1.0.3" author="vitalii.vorobii">
+    <changeSet id="1.0.4" author="vitalii.vorobii">
 
         <addForeignKeyConstraint
                 baseTableName="user_roles"
@@ -100,7 +135,7 @@
     </changeSet>
 
     <!-- Add constrains to user_roles table -->
-    <changeSet id="1.0.4" author="vitalii.vorobii">
+    <changeSet id="1.0.5" author="vitalii.vorobii">
 
         <addForeignKeyConstraint
                 baseTableName="user_roles"
@@ -114,8 +149,38 @@
 
     </changeSet>
 
+    <!-- Add constrains to user verification -->
+    <changeSet id="1.0.6" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="users_verification"
+                baseColumnNames="user_id"
+                constraintName="fk_users_verification_user"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
+
+    </changeSet>
+
+    <!-- Add constrains to user -->
+    <changeSet id="1.0.7" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="users"
+                baseColumnNames="user_verification_id"
+                constraintName="fk_users_verification"
+                referencedTableName="users_verification"
+                referencedColumnNames="id"
+                onDelete="RESTRICT"
+                onUpdate="RESTRICT"
+        />
+
+    </changeSet>
+
     <!-- Add customer and admin role -->
-    <changeSet id="1.0.5" author="vitalii.vorobii">
+    <changeSet id="1.0.8" author="vitalii.vorobii">
 
         <insert tableName="roles">
             <column name="name" value="ROLE_CUSTOMER" />
@@ -123,6 +188,46 @@
 
         <insert tableName="roles">
             <column name="name" value="ROLE_ADMIN" />
+        </insert>
+
+    </changeSet>
+    
+    
+    <!-- Create root admin -->
+    <changeSet id="1.0.9" author="vitalii.vorobii">
+        
+        <insert tableName="users">
+            <column name="email" value="vitalij.vorobij@gmail.com" />
+            <column name="password" value="$2a$10$IPaLZKOTnRiUrd8Aov826.Ri7evrWUbp7UJ2T9KtIbQn3WWj1HQly" />
+            <column name="first_name" value="Vitalii" />
+            <column name="last_name" value="Vorobii" />
+        </insert>
+
+        <insert tableName="user_roles">
+            <column name="user_id" value="1"/>
+            <column name="role_id" value="1"/>
+        </insert>
+
+        <insert tableName="user_roles">
+            <column name="user_id" value="1"/>
+            <column name="role_id" value="2"/>
+        </insert>
+        
+    </changeSet>
+
+    <!-- Create test customer -->
+    <changeSet id="1.1.0" author="vitalii.vorobii">
+
+        <insert tableName="users">
+            <column name="email" value="test_user@gmail.com" />
+            <column name="password" value="$2a$10$IPaLZKOTnRiUrd8Aov826.Ri7evrWUbp7UJ2T9KtIbQn3WWj1HQly" />
+            <column name="first_name" value="Test" />
+            <column name="last_name" value="User" />
+        </insert>
+
+        <insert tableName="user_roles">
+            <column name="user_id" value="1"/>
+            <column name="role_id" value="1"/>
         </insert>
 
     </changeSet>
