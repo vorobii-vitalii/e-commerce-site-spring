@@ -22,6 +22,31 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class AuthenticationRestExceptionHandler {
 
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(PasswordResetTokenHasExpired.class)
+    public Map<String,String> handlePasswordResetTokenHasExpired( PasswordResetTokenHasExpired ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Password reset token has expired" );
+        return body;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PasswordResetTokenIsNotValid.class)
+    public Map<String,String> handlePasswordResetTokenIsNotValid(PasswordResetTokenIsNotValid ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Password reset token is not valid" );
+        return body;
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(PasswordResetTokenIsNotActive.class)
+    public Map<String,String> handlePasswordResetTokenIsNotActive( PasswordResetTokenIsNotActive ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Password reset token is not active" );
+        return body;
+    }
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserNotActiveException.class)
     public Map<String,String> handleUserNotActive( UserNotActiveException ex) {
