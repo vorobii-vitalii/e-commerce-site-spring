@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class UserServiceImplementation implements UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserVerificationRepository userVerificationRepository;
@@ -29,7 +29,7 @@ public class UserServiceImplementation implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImplementation(
+    public UserServiceImpl (
                 UserRepository userRepository,
                 UserVerificationRepository userVerificationRepository,
                 RoleRepository roleRepository,
@@ -149,8 +149,6 @@ public class UserServiceImplementation implements UserService {
         log.info ( "findById {}", foundUser );
         return foundUser;
     }
-
-
 
     @Override
     public void delete ( Long id ) {
