@@ -4,17 +4,22 @@ import com.commerce.web.model.User;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 public class RegistrationRequestDTO {
 
-    @Email
+    @Email @NotBlank(message = "Email is mandatory")
     private String email;
 
+    @NotBlank(message = "Password is mandatory")
     private String password;
 
+    @NotBlank(message = "First name is mandatory")
     private String firstName;
 
+    @NotBlank(message = "Last name is mandatory")
     private String lastName;
 
 

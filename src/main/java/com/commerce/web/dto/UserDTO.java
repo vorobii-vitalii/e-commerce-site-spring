@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
     private Long id;
+
     private String firstName;
+
     private String lastName;
 
-    @Email
     private String email;
 
     public User toUser() {
