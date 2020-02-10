@@ -1,11 +1,9 @@
 package com.commerce.web.service.implementation;
 
-import com.commerce.web.exceptions.UserIsAlreadyVerifiedException;
-import com.commerce.web.exceptions.UserWasNotFoundByEmailException;
-import com.commerce.web.exceptions.VerificationTokenExpiredException;
-import com.commerce.web.exceptions.VerificationTokenHasNotMatchedException;
+import com.commerce.web.exceptions.*;
 import com.commerce.web.model.*;
 import com.commerce.web.repository.RoleRepository;
+import com.commerce.web.repository.UserPasswordResetRepository;
 import com.commerce.web.repository.UserRepository;
 import com.commerce.web.repository.UserVerificationRepository;
 import com.commerce.web.service.UserService;
@@ -25,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserVerificationRepository userVerificationRepository;
+    private final UserPasswordResetRepository userPasswordResetRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
@@ -32,11 +31,13 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl (
                 UserRepository userRepository,
                 UserVerificationRepository userVerificationRepository,
+                UserPasswordResetRepository userPasswordResetRepository,
                 RoleRepository roleRepository,
                 BCryptPasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userVerificationRepository = userVerificationRepository;
+        this.userPasswordResetRepository = userPasswordResetRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -104,7 +105,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String regenerateToken ( String email ) throws UserWasNotFoundByEmailException, UserIsAlreadyVerifiedException {
+    public String regenerateVerificationToken ( String email ) throws UserWasNotFoundByEmailException, UserIsAlreadyVerifiedException {
 
         User user = userRepository.findByEmail ( email );
 
@@ -120,6 +121,7 @@ public class UserServiceImpl implements UserService {
 
         String newToken = UUID.randomUUID ().toString ();
 
+        userVerification.setCreated ( new Date() );
         userVerification.setToken ( newToken );
 
         userVerificationRepository.save(userVerification);
@@ -127,6 +129,57 @@ public class UserServiceImpl implements UserService {
         log.info ( "Generated new token for {} ", user );
 
         return newToken;
+    }
+
+    @Override
+    public String resetPasswordByEmail ( String email ) throws UserWasNotFoundByEmailException, UserNotActiveException {
+
+        User user = userRepository.findByEmail ( email );
+
+        if ( user == null )
+            throw new UserWasNotFoundByEmailException ( "User wasn't found by email: " + email );
+
+        if ( user.getStatus () != Status.ACTIVE )
+            throw new UserNotActiveException ( "User is not yet active to change his password" );
+
+        String token = UUID.randomUUID ().toString ();
+
+        UserPasswordReset userPasswordReset = userPasswordResetRepository.save ( UserPasswordResetFactory.create ( token, user, Status.ACTIVE ));
+
+        user.setUserPasswordReset ( userPasswordReset );
+
+        log.info ( "Trying to reset password by email {} ", email );
+
+        userRepository.save ( user );
+
+        return token;
+    }
+
+    @Override
+    public void changePasswordByToken ( String token, String password ) throws PasswordResetTokenIsNotValid,  PasswordResetTokenIsNotActive, PasswordResetTokenHasExpired {
+
+        UserPasswordReset userPasswordReset = userPasswordResetRepository.findByToken ( token );
+
+        if (userPasswordReset == null)
+                throw new PasswordResetTokenIsNotValid ( "Password reset token " + token + " is invalid" );
+
+        if (userPasswordReset.getStatus () != Status.ACTIVE)
+                throw new PasswordResetTokenIsNotActive ( "Password reset token " + token + " is not active" );
+
+        Long tokenExpirationTime = userPasswordReset.getCreated ().getTime ();
+        Date validatedBy = new Date(tokenExpirationTime + 3600 * 2);
+
+        if ( ! new Date ().before ( validatedBy)  )
+            throw new PasswordResetTokenHasExpired ( "Password reset token " + token + " has expired" );
+
+        User userToChange = userPasswordReset.getUser ();
+
+        userToChange.setPassword ( passwordEncoder.encode ( password ) );
+
+        userPasswordReset.setStatus ( Status.NOT_ACTIVE );
+        userPasswordResetRepository.save ( userPasswordReset );
+
+        userRepository.save ( userToChange );
     }
 
     @Override
