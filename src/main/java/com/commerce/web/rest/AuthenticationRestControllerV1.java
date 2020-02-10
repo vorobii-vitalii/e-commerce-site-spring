@@ -13,11 +13,10 @@ import com.commerce.web.mail_templates.AccountValidationMailMessage;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
 import com.commerce.web.security.jwt.JwtTokenProvider;
+import com.commerce.web.service.MailService;
 import com.commerce.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,17 +31,26 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationRestControllerV1 {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final MailService mailService;
+
+    private final UserService userService;
 
     @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private UserService userService;
+    public AuthenticationRestControllerV1(
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider jwtTokenProvider,
+            MailService mailService,
+            UserService userService
+    ){
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.mailService = mailService;
+        this.userService = userService;
+    }
 
     @PostMapping(value = "register")
     public ResponseEntity register( @RequestBody RegistrationRequestDTO registrationRequestDTO ) {
@@ -64,7 +72,7 @@ public class AuthenticationRestControllerV1 {
         String token = registeredUser.getUserVerification ().getToken ();
 
         // Send email to person
-        this.mailSender.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
+        this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
 
         return (ResponseEntity) ResponseEntity.ok ( );
     }
@@ -128,7 +136,7 @@ public class AuthenticationRestControllerV1 {
             String token = userService.regenerateToken ( email );
 
             // Resend token to person
-            this.mailSender.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
+            this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
 
             return (ResponseEntity) ResponseEntity.ok ( );
         }
