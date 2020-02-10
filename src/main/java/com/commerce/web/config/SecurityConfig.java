@@ -28,7 +28,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String REGISTER_ENDPOINT = "/api/v1/auth/register";
     private static final String VERIFY_USER_ENDPOINT = "/api/v1/auth/verify/**";
     private static final String RESENT_VERIFY_USER_ENDPOINT = "/api/v1/auth/resend/**";
-    private static final String EXAMPLE_MAIL = "/mail/example";
+    private static final String FORGOT_PASSWORD_ENDPOINT = "/api/v1/auth/forgotPassword";
+    private static final String RESET_PASSWORD_ENDPOINT = "/api/v1/auth/resetPassword";
 
 
     @Autowired
@@ -57,6 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers ( REGISTER_ENDPOINT ).permitAll ()
                 .antMatchers ( VERIFY_USER_ENDPOINT ).permitAll ()
                 .antMatchers ( RESENT_VERIFY_USER_ENDPOINT ).permitAll ()
+                .antMatchers ( RESET_PASSWORD_ENDPOINT ).permitAll ()
+                .antMatchers ( FORGOT_PASSWORD_ENDPOINT ).permitAll ()
                 .antMatchers ( ADMIN_ENDPOINT).hasRole ( UserRolesConstants.ADMIN ) // Admin endpoints require role of Admin!
                 .anyRequest ().authenticated () // Other ones require basic authentication
                 .and ()
