@@ -1,32 +1,25 @@
 package com.commerce.web.rest.authentication;
 
 import com.commerce.web.constants.SiteConstants;
-import com.commerce.web.dto.AuthenticationRequestDTO;
-import com.commerce.web.dto.RegistrationRequestDTO;
-import com.commerce.web.dto.UserDTO;
-import com.commerce.web.dto.VerifyAccountDTO;
+import com.commerce.web.dto.*;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.mail_templates.AccountValidationMailMessage;
+import com.commerce.web.mail_templates.ForgotPasswordMailMessage;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
 import com.commerce.web.security.jwt.JwtTokenProvider;
 import com.commerce.web.service.MailService;
 import com.commerce.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -49,8 +42,6 @@ public class AuthenticationRestControllerV1 {
         this.mailService = mailService;
         this.userService = userService;
     }
-
-    // Endpoints
 
     @PostMapping(value = "register")
     @ResponseStatus(value = HttpStatus.OK)
@@ -100,10 +91,35 @@ public class AuthenticationRestControllerV1 {
     public void resendToken( @Valid @RequestBody VerifyAccountDTO verifyAccountDTO ) throws UserIsAlreadyVerifiedException, UserWasNotFoundByEmailException {
 
         String email = verifyAccountDTO.getEmail ();
-        String token = userService.regenerateToken ( email );
+        String token = userService.regenerateVerificationToken ( email );
 
         // Resend token to person
         this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
+    }
+
+
+    @PostMapping(value = "forgotPassword")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void forgotPassword(@Valid @RequestBody VerifyAccountDTO verifyAccountDTO) throws UserWasNotFoundByEmailException, UserNotActiveException {
+
+        String email = verifyAccountDTO.getEmail ();
+
+        String token = userService.resetPasswordByEmail ( email );
+
+        this.mailService.send ( new ForgotPasswordMailMessage ( email,token,SiteConstants.BASE_URL ).generate () );
+    }
+
+
+    @PostMapping(value = "resetPassword")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void resetPassword( @Valid @RequestBody PasswordResetDTO passwordResetDTO ) throws PasswordResetTokenIsNotActive, PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenHasExpired {
+
+        String token = passwordResetDTO.getToken ();
+
+        String password = passwordResetDTO.getPassword ();
+
+        this.userService.changePasswordByToken ( token, password );
+
     }
 
 }
