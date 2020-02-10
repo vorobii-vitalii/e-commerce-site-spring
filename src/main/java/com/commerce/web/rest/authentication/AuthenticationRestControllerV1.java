@@ -1,4 +1,4 @@
-package com.commerce.web.rest;
+package com.commerce.web.rest.authentication;
 
 import com.commerce.web.constants.SiteConstants;
 import com.commerce.web.dto.AuthenticationRequestDTO;
@@ -104,73 +104,6 @@ public class AuthenticationRestControllerV1 {
 
         // Resend token to person
         this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
-    }
-
-
-    // Exception handlers
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(UserNotActiveException.class)
-    public Map<String,String> handleUserNotActive(UserNotActiveException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User with email " + ex.getMessage () + " is not active" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UserWasNotFoundException.class)
-    public Map<String,String> handleUserWasNotFound(UserWasNotFoundException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User with email " + ex.getMessage () + " wasn't found" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(AuthenticationException.class)
-    public Map<String,String> handleAuthenticationError(AuthenticationException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Failed to authenticate" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(VerificationTokenHasNotMatchedException.class)
-    public Map<String,String> handleVerificationTokenHasNotMatched(VerificationTokenHasNotMatchedException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Verification token has not matched" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(VerificationTokenExpiredException.class)
-    public Map<String,String> handleTokenWasExpired(VerificationTokenExpiredException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Token has been expired" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UserIsAlreadyVerifiedException.class)
-    public Map<String,String> handleUserWasNotFoundByEmail(UserWasNotFoundByEmailException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User wasn't found by email" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(UserIsAlreadyVerifiedException.class)
-    public Map<String,String> handleUserIsAlreadyVerified(UserIsAlreadyVerifiedException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User is already verified" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValid( MethodArgumentNotValidException ex) {
-        return ex.getBindingResult ( ).getFieldErrors ( ).stream ( ).collect ( Collectors.toMap ( FieldError::getField ,
-                DefaultMessageSourceResolvable::getDefaultMessage ,
-                ( a , b ) -> b ) );
     }
 
 }
