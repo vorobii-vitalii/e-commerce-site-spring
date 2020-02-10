@@ -54,6 +54,11 @@ public class User extends BaseEntity {
     private UserVerification userVerification;
 
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name="user_password_reset_id", referencedColumnName = "id")
+    private UserPasswordReset userPasswordReset;
+
+
     public String toString() {
         return "User #" + getId ();
     }
