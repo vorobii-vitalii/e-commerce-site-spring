@@ -282,9 +282,60 @@
         </insert>
 
         <insert tableName="user_roles">
-            <column name="user_id" value="1"/>
+            <column name="user_id" value="2"/>
             <column name="role_id" value="1"/>
         </insert>
+
+    </changeSet>
+
+    <!-- Create products table -->
+    <changeSet id="1.1.2" author="vitalii.vorobii">
+        <createTable tableName="products">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="name" type="VARCHAR(200)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="cost" type="DEC(11,2)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+
+
+        </createTable>
+    </changeSet>
+
+    <!-- Add constrains to products table -->
+    <changeSet id="1.1.3" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="products"
+                baseColumnNames="user_id"
+                constraintName="fk_products_user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
 
     </changeSet>
 

@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="users")
@@ -58,6 +59,8 @@ public class User extends BaseEntity {
     @JoinColumn(name="user_password_reset_id", referencedColumnName = "id")
     private UserPasswordReset userPasswordReset;
 
+    @OneToMany(mappedBy = "user")
+    private Set<Product> products;
 
     public String toString() {
         return "User #" + getId ();
