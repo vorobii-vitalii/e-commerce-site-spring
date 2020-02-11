@@ -59,7 +59,7 @@ public class AuthenticationRestExceptionHandler {
     @ExceptionHandler(UserWasNotFoundException.class)
     public Map<String,String> handleUserWasNotFound(UserWasNotFoundException ex) {
         Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User with email " + ex.getMessage () + " wasn't found" );
+        body.put ( "error", "User wasn't found" );
         return body;
     }
 
@@ -87,11 +87,19 @@ public class AuthenticationRestExceptionHandler {
         return body;
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UsersResultIsEmptyException.class)
+    public Map<String,String> handleUsersResultIsEmpty(UsersResultIsEmptyException ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Users were not found" );
+        return body;
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(UserWasNotFoundByEmailException.class)
     public Map<String,String> handleUserWasNotFoundByEmail(UserWasNotFoundByEmailException ex) {
         Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User wasn't found by email" );
+        body.put ( "error", "User with email " + ex.getMessage () + " wasn't found" );
         return body;
     }
 
@@ -100,6 +108,14 @@ public class AuthenticationRestExceptionHandler {
     public Map<String,String> handleUserIsAlreadyVerified(UserIsAlreadyVerifiedException ex) {
         Map<String,String> body = new HashMap<> ( );
         body.put ( "error", "User is already verified" );
+        return body;
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(UserIsDeletedException.class)
+    public Map<String,String> handleUserIsDeleted(UserIsDeletedException ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "User is deleted" );
         return body;
     }
 
