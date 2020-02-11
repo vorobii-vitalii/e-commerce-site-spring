@@ -1,15 +1,15 @@
 package com.commerce.web.rest;
 
 import com.commerce.web.dto.UserDTO;
+import com.commerce.web.exceptions.UserIsDeletedException;
+import com.commerce.web.exceptions.UserWasNotFoundException;
+import com.commerce.web.exceptions.UsersResultIsEmptyException;
 import com.commerce.web.model.User;
 import com.commerce.web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collector;
@@ -23,13 +23,9 @@ public class AdminRestController {
     private UserService userService;
 
     @GetMapping(value = "users")
-    public ResponseEntity<List<UserDTO>> getAllUsers( ){
+    public ResponseEntity<List<UserDTO>> getAllUsers( ) throws UsersResultIsEmptyException {
 
         List<User> users = userService.getAll ();
-
-        if(users == null) {
-            return new ResponseEntity<> ( HttpStatus.NO_CONTENT );
-        }
 
         return new ResponseEntity (
                 users
@@ -40,19 +36,16 @@ public class AdminRestController {
     }
 
     @GetMapping(value="users/{id}")
-    public ResponseEntity<UserDTO> getUserById( @PathVariable(name="id") Long id) {
-
+    public ResponseEntity<UserDTO> getUserById( @PathVariable(name="id") Long id) throws UserWasNotFoundException, UserIsDeletedException {
         User user = userService.findById ( id );
-
-        if(user == null) {
-            return new ResponseEntity<> ( HttpStatus.NO_CONTENT );
-        }
-
-        UserDTO userDTO = UserDTO.fromUser ( user );
-
-        return new ResponseEntity<UserDTO> ( userDTO, HttpStatus.OK );
+        return new ResponseEntity<UserDTO> ( UserDTO.fromUser ( user ), HttpStatus.OK );
     }
 
+    @DeleteMapping(value = "users/{id}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void deleteUserById(@PathVariable(name = "id") Long id) throws UserWasNotFoundException {
+        userService.delete ( id );
+    }
 
 
 }
