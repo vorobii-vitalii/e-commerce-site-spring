@@ -1,9 +1,12 @@
 package com.commerce.web.dto;
 
+import com.commerce.web.model.Role;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +22,8 @@ public class UserDTO {
 
     private Status status;
 
+    private List<Role> roles;
+
     public User toUser() {
         User user = new User ();
         user.setId ( id );
@@ -26,6 +31,7 @@ public class UserDTO {
         user.setLastName ( lastName );
         user.setEmail ( email );
         user.setStatus ( status );
+        user.setRoles ( roles );
 
         return user;
     }
@@ -37,6 +43,8 @@ public class UserDTO {
         userDTO.setFirstName ( user.getFirstName () );
         userDTO.setLastName ( user.getLastName () );
         userDTO.setStatus ( user.getStatus () );
+        userDTO.setRoles ( user.getRoles () );
+
         return userDTO;
     }
 }
