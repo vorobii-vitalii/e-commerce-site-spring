@@ -1,5 +1,6 @@
 package com.commerce.web.security;
 
+import com.commerce.web.exceptions.UserWasNotFoundByEmailException;
 import com.commerce.web.model.User;
 import com.commerce.web.security.jwt.JwtUser;
 import com.commerce.web.security.jwt.JwtUserFactory;
@@ -23,16 +24,20 @@ public class JwtUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername ( String email ) throws UsernameNotFoundException {
-        User user = userService.findByEmail ( email );
+    public UserDetails loadUserByUsername ( String email ) throws UsernameNotFoundException{
 
-        if( user == null ) {
+        try {
+
+            User user = userService.findByEmail ( email );
+
+            JwtUser jwtUser = JwtUserFactory.create ( user );
+            log.info ( "loadByUserName - user with email {} succesfully loaded", email );
+
+            return jwtUser;
+        }
+        catch(UserWasNotFoundByEmailException e) {
             throw new UsernameNotFoundException ( "User with email " + email + " not found..." );
         }
 
-        JwtUser jwtUser = JwtUserFactory.create ( user );
-        log.info ( "loadByUserName - user with email {} succesfully loaded", email );
-
-        return jwtUser;
     }
 }
