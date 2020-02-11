@@ -11,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +27,22 @@ public class AuthenticationRestExceptionHandler {
     public Map<String,String> handlePasswordResetTokenHasExpired( PasswordResetTokenHasExpired ex) {
         Map<String,String> body = new HashMap<> ( );
         body.put ( "error", "Password reset token has expired" );
+        return body;
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(AdminIsImmutableException.class)
+    public Map<String,String> handlePAdminIsImmutable( AdminIsImmutableException ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Admin cannot be changed" );
+        return body;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(RolesAreInvalidException.class)
+    public Map<String,String> handleRolesNotValid(RolesAreInvalidException ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Provided roles are invalid" );
         return body;
     }
 
