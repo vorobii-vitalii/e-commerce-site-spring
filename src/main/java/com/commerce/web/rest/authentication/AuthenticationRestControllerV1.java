@@ -58,7 +58,7 @@ public class AuthenticationRestControllerV1 {
 
 
     @PostMapping(value = "login")
-    public ResponseEntity login( @Valid @RequestBody AuthenticationRequestDTO requestDTO ) throws UserWasNotFoundException, UserNotActiveException {
+    public ResponseEntity login( @Valid @RequestBody AuthenticationRequestDTO requestDTO ) throws UserWasNotFoundException, UserNotActiveException, UserWasNotFoundByEmailException {
 
         String email = requestDTO.getEmail ();
 
@@ -66,7 +66,6 @@ public class AuthenticationRestControllerV1 {
 
         User user = userService.findByEmail ( email );
 
-        if( user == null )  throw new UserWasNotFoundException ( email );
         if( user.getStatus () != Status.ACTIVE )  throw new UserNotActiveException ( email );
 
         String token = jwtTokenProvider.createToken ( email, user.getRoles () );
@@ -106,7 +105,7 @@ public class AuthenticationRestControllerV1 {
 
         String token = userService.resetPasswordByEmail ( email );
 
-        this.mailService.send ( new ForgotPasswordMailMessage ( email,token,SiteConstants.BASE_URL ).generate () );
+        this.mailService.send ( new ForgotPasswordMailMessage ( email,token,SiteConstants.BASE_URL+"/reset/" ).generate () );
     }
 
 
