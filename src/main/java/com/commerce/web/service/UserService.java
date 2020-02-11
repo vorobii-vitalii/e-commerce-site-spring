@@ -1,5 +1,6 @@
 package com.commerce.web.service;
 
+import com.commerce.web.dto.UserDTO;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.model.User;
 
@@ -11,7 +12,7 @@ public interface UserService {
 
     List<User> getAll() throws UsersResultIsEmptyException;
 
-    User findByEmail(String email) throws UserWasNotFoundException, UserWasNotFoundByEmailException;
+    User findByEmail(String email) throws UserWasNotFoundByEmailException;
 
     User findById(Long id) throws UserWasNotFoundException, UserIsDeletedException;
 
@@ -23,5 +24,7 @@ public interface UserService {
 
     void changePasswordByToken(String token,String password) throws PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenIsNotActive, PasswordResetTokenHasExpired;
 
-    void delete(Long id) throws UserWasNotFoundException;
+    void changeUser( Long id, UserDTO userDTO ) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException;
+
+    void deleteUser ( Long id) throws UserWasNotFoundException, AdminIsImmutableException;
 }
