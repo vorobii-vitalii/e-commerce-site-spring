@@ -3,6 +3,8 @@ package com.commerce.web.dto;
 import com.commerce.web.model.Role;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
