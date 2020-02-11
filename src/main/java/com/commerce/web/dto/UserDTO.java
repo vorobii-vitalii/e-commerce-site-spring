@@ -1,11 +1,9 @@
 package com.commerce.web.dto;
 
+import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,12 +17,15 @@ public class UserDTO {
 
     private String email;
 
+    private Status status;
+
     public User toUser() {
         User user = new User ();
         user.setId ( id );
         user.setFirstName ( firstName );
         user.setLastName ( lastName );
         user.setEmail ( email );
+        user.setStatus ( status );
 
         return user;
     }
@@ -35,6 +36,7 @@ public class UserDTO {
         userDTO.setEmail ( user.getEmail () );
         userDTO.setFirstName ( user.getFirstName () );
         userDTO.setLastName ( user.getLastName () );
+        userDTO.setStatus ( user.getStatus () );
         return userDTO;
     }
 }
