@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -179,33 +180,59 @@ public class UserServiceImpl implements UserService {
         userPasswordReset.setStatus ( Status.NOT_ACTIVE );
         userPasswordResetRepository.save ( userPasswordReset );
 
+        log.info ( "User {} has changed his password.", userToChange );
+
         userRepository.save ( userToChange );
     }
 
     @Override
-    public List<User> getAll () {
-        List<User> fetchedUsers = userRepository.findAll ();
+    public List<User> getAll () throws UsersResultIsEmptyException {
+        List<User> fetchedUsers = userRepository.findAll ().stream ()
+                                                            .filter ( user -> user.getStatus () != Status.DELETED )
+                                                            .collect( Collectors.toList());
+        if (fetchedUsers.isEmpty ())
+            throw new UsersResultIsEmptyException ( "Users were not found" );
+
         log.info("IN getAll {} ", fetchedUsers);
         return fetchedUsers;
     }
 
     @Override
-    public User findByEmail ( String email ) {
+    public User findByEmail ( String email ) throws UserWasNotFoundByEmailException {
         User foundUser = userRepository.findByEmail ( email );
+        if (foundUser == null)
+            throw new UserWasNotFoundByEmailException ( "User with email " + email + " not found" );
         log.info ( "findByEmail {}", foundUser );
         return foundUser;
     }
 
     @Override
-    public User findById ( Long id ) {
+    public User findById ( Long id ) throws UserWasNotFoundException, UserIsDeletedException {
         User foundUser = userRepository.findById ( id ).orElse ( null );
+
+        if (foundUser == null)
+            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+
+        if (foundUser.getStatus () == Status.DELETED ) {
+            throw new UserIsDeletedException ( "User with id " + id + " is deleted" );
+        }
+
         log.info ( "findById {}", foundUser );
         return foundUser;
     }
 
     @Override
-    public void delete ( Long id ) {
-        userRepository.deleteById ( id );
+    public void delete ( Long id ) throws UserWasNotFoundException {
+
+        User foundUser = userRepository.findById ( id ).orElse ( null );
+
+        if (foundUser == null)
+            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+
+        foundUser.setStatus ( Status.DELETED );
+
+        userRepository.save ( foundUser );
+
         log.info ( "deleteById {}", id );
     }
 }
