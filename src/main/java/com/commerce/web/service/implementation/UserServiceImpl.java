@@ -1,5 +1,6 @@
 package com.commerce.web.service.implementation;
 
+import com.commerce.web.dto.UserDTO;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.model.*;
 import com.commerce.web.repository.RoleRepository;
@@ -88,7 +89,7 @@ public class UserServiceImpl implements UserService {
             throw new VerificationTokenHasNotMatchedException ( "Token wasn't found" );
         }
 
-        Long tokenExpirationTime = foundUserVerification.getCreated ().getTime ();
+        long tokenExpirationTime = foundUserVerification.getCreated ().getTime ();
         Date validatedBy = new Date(tokenExpirationTime + 3600 * 2);
 
         if ( ! new Date ().before ( validatedBy)  ) {
@@ -167,7 +168,7 @@ public class UserServiceImpl implements UserService {
         if (userPasswordReset.getStatus () != Status.ACTIVE)
                 throw new PasswordResetTokenIsNotActive ( "Password reset token " + token + " is not active" );
 
-        Long tokenExpirationTime = userPasswordReset.getCreated ().getTime ();
+        long tokenExpirationTime = userPasswordReset.getCreated ().getTime ();
         Date validatedBy = new Date(tokenExpirationTime + 3600 * 2);
 
         if ( ! new Date ().before ( validatedBy)  )
@@ -185,11 +186,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save ( userToChange );
     }
 
+
     @Override
     public List<User> getAll () throws UsersResultIsEmptyException {
-        List<User> fetchedUsers = userRepository.findAll ().stream ()
-                                                            .filter ( user -> user.getStatus () != Status.DELETED )
-                                                            .collect( Collectors.toList());
+        List<User> fetchedUsers = userRepository.findAll ();
+
         if (fetchedUsers.isEmpty ())
             throw new UsersResultIsEmptyException ( "Users were not found" );
 
@@ -221,13 +222,61 @@ public class UserServiceImpl implements UserService {
         return foundUser;
     }
 
+
     @Override
-    public void delete ( Long id ) throws UserWasNotFoundException {
+    public void changeUser ( Long id , UserDTO userDTO ) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException {
 
         User foundUser = userRepository.findById ( id ).orElse ( null );
 
         if (foundUser == null)
             throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+
+        if (foundUser.getRoles ().stream ().anyMatch ( role -> role.getName ().equals (  "ROLE_ADMIN" ) )) {
+            throw new AdminIsImmutableException ( "Admin is immutable" );
+        }
+
+        List<Role> providedRoles = userDTO.getRoles ();
+        Status providedStatus = userDTO.getStatus ();
+
+        if (providedRoles != null) {
+
+            List<Role> rolesToAttach = providedRoles
+                    .stream ()
+                    .map ( role -> roleRepository.findByName ( role.getName ()) )
+                    .filter ( role -> role != null )
+                    .collect( Collectors.toList());
+
+            if (rolesToAttach.size () != providedRoles.size ()) {
+                throw new RolesAreInvalidException ( "Roles are invalid" );
+            }
+
+            foundUser.setRoles ( rolesToAttach );
+
+        }
+
+        if (providedStatus != null) {
+            foundUser.setStatus ( providedStatus );
+        }
+
+        log.info ( "Updated user {}", foundUser );
+
+        log.info ( "USER ROLES {}", foundUser.getRoles () );
+
+        userRepository.save ( foundUser );
+    }
+
+
+    @Override
+    public void deleteUser ( Long id ) throws UserWasNotFoundException, AdminIsImmutableException {
+
+        User foundUser = userRepository.findById ( id ).orElse ( null );
+
+        if (foundUser == null)
+            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+
+        if (foundUser.getRoles ().stream ().anyMatch ( role -> role.getName ().equals (  "ROLE_ADMIN" ) )) {
+            throw new AdminIsImmutableException ( "Admin is immutable" );
+        }
 
         foundUser.setStatus ( Status.DELETED );
 
@@ -235,4 +284,5 @@ public class UserServiceImpl implements UserService {
 
         log.info ( "deleteById {}", id );
     }
+
 }
