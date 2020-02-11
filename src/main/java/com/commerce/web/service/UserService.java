@@ -9,11 +9,11 @@ public interface UserService {
 
     User register( User user);
 
-    List<User> getAll();
+    List<User> getAll() throws UsersResultIsEmptyException;
 
-    User findByEmail(String email);
+    User findByEmail(String email) throws UserWasNotFoundException, UserWasNotFoundByEmailException;
 
-    User findById(Long id);
+    User findById(Long id) throws UserWasNotFoundException, UserIsDeletedException;
 
     User verifyByToken(String token) throws VerificationTokenExpiredException, VerificationTokenHasNotMatchedException;
 
@@ -23,5 +23,5 @@ public interface UserService {
 
     void changePasswordByToken(String token,String password) throws PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenIsNotActive, PasswordResetTokenHasExpired;
 
-    void delete(Long id);
+    void delete(Long id) throws UserWasNotFoundException;
 }
