@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     @Autowired
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(
+            JwtTokenProvider jwtTokenProvider
+    ) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
@@ -48,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .httpBasic ().disable ()
                 .csrf ().disable () // Disable CSRF
+                .cors ().and ()
                 .sessionManagement ().sessionCreationPolicy ( SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests ()
@@ -64,7 +69,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest ().authenticated () // Other ones require basic authentication
                 .and ()
                 .apply ( new JwtConfigurer ( jwtTokenProvider)); // Apply custom JWT filter
-
 
     }
 
