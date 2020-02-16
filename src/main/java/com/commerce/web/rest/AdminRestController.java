@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/api/v1/admin/")
 public class AdminRestController {
 
@@ -41,15 +42,14 @@ public class AdminRestController {
 
     // PATCH ENDPOINTS
 
-    @PatchMapping(value = "users/{id}")
+    @RequestMapping(value = "users/edit/{id}",method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public void changeUserById(@PathVariable(name="id") Long id, @Valid @RequestBody UserDTO userDTO) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException {
         userService.changeUser ( id, userDTO );
     }
 
-    // DELETE ENDPOINTS
 
-    @DeleteMapping(value = "users/{id}")
+    @RequestMapping(value = "users/{id}",method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public void deleteUserById(@PathVariable(name = "id") Long id) throws UserWasNotFoundException, AdminIsImmutableException {
         userService.deleteUser ( id );
