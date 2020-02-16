@@ -14,7 +14,7 @@ import java.util.Set;
 public class User extends BaseEntity {
 
     @Email
-    @Column(name="email")
+    @Column(name="email",unique = true)
     @NotBlank(message = "Email is mandatory")
     private String email;
 

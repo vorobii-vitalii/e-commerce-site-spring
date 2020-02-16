@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+import java.util.List;
 
 @Data
 @Entity
@@ -15,12 +16,21 @@ public class Product extends BaseEntity {
     @Column(name="name")
     private String name;
 
+    @Column(name="description")
+    private String description;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductSpecification> productSpecifications;
+
     @Positive(message = "Cost of product is required")
     @Column(name="cost")
     private Double cost;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "user_id",
+                referencedColumnName = "id",
+                nullable = true
+    )
     private User user;
 
 }

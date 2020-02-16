@@ -225,7 +225,7 @@
 
         <addForeignKeyConstraint
                 baseTableName="users"
-                baseColumnNames="user_verification_id"
+                baseColumnNames="user_password_reset_id"
                 constraintName="fk_users_password_reset"
                 referencedTableName="users_password_reset"
                 referencedColumnNames="id"
@@ -300,6 +300,10 @@
                 <constraints nullable="false" />
             </column>
 
+            <column name="description" type="VARCHAR(400)">
+                <constraints nullable="false" />
+            </column>
+
             <column name="cost" type="DEC(11,2)">
                 <constraints nullable="false" />
             </column>
@@ -338,5 +342,88 @@
         />
 
     </changeSet>
+
+    <!-- Create specifications table -->
+    <changeSet id="1.1.4" author="vitalii.vorobii">
+        <createTable tableName="specifications">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="name" type="VARCHAR(40)">
+                <constraints nullable="false" unique="true" />
+            </column>
+
+            <column name="formatted_name" type="VARCHAR(70)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="created" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated" type="TIMESTAMP" defaultValue="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(25)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+    </changeSet>
+
+
+    <!-- Create specifications table -->
+    <changeSet id="1.1.5" author="vitalii.vorobii">
+        <createTable tableName="product_specifications">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+
+            <column name="value" type="VARCHAR(120)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="specification_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+    </changeSet>
+
+    <!-- Add constrains to user_roles table -->
+    <changeSet id="1.1.6" author="vitalii.vorobii">
+
+        <addForeignKeyConstraint
+                baseTableName="product_specifications"
+                baseColumnNames="specification_id"
+                constraintName="fk_product_specifications_specs"
+                referencedTableName="specifications"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
+
+        <addForeignKeyConstraint
+                baseTableName="product_specifications"
+                baseColumnNames="product_id"
+                constraintName="fk_product_specifications_product"
+                referencedTableName="products"
+                referencedColumnNames="id"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+        />
+
+    </changeSet>
+
+
+
 
 </databaseChangeLog>
