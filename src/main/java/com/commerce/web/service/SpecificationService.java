@@ -5,11 +5,16 @@ import com.commerce.web.dto.SpecificationDTO;
 import com.commerce.web.exceptions.SpecificationNameIsTakenException;
 import com.commerce.web.exceptions.SpecificationNotFoundByNameException;
 import com.commerce.web.exceptions.SpecificationNotFoundException;
+import com.commerce.web.exceptions.SpecificationResultIsEmptyException;
 import com.commerce.web.model.Specification;
+
+import java.util.List;
 
 public interface SpecificationService {
 
     void addSpecification( SpecificationDTO specificationDTO ) throws SpecificationNameIsTakenException;
+
+    List<Specification> getAll() throws SpecificationResultIsEmptyException;
 
     Specification getByName(String name) throws SpecificationNotFoundByNameException;
 

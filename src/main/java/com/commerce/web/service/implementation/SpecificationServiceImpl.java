@@ -5,12 +5,18 @@ import com.commerce.web.dto.SpecificationDTO;
 import com.commerce.web.exceptions.SpecificationNameIsTakenException;
 import com.commerce.web.exceptions.SpecificationNotFoundByNameException;
 import com.commerce.web.exceptions.SpecificationNotFoundException;
+import com.commerce.web.exceptions.SpecificationResultIsEmptyException;
 import com.commerce.web.model.Specification;
 import com.commerce.web.model.Status;
 import com.commerce.web.repository.SpecificationRepository;
 import com.commerce.web.service.SpecificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+
+@Service
 public class SpecificationServiceImpl implements SpecificationService {
 
     private final SpecificationRepository specificationRepository;
@@ -29,6 +35,17 @@ public class SpecificationServiceImpl implements SpecificationService {
             throw new SpecificationNameIsTakenException ( "Specification with name " + name + " is taken");
 
         specificationRepository.save ( specificationDTO.toSpecification () );
+    }
+
+    @Override
+    public List<Specification> getAll () throws SpecificationResultIsEmptyException {
+
+        List<Specification> specifications = specificationRepository.findAll ();
+
+        if (specifications.isEmpty ())
+            throw new SpecificationResultIsEmptyException ( "Specifications were not found" );
+
+        return specifications;
     }
 
     @Override
@@ -54,7 +71,7 @@ public class SpecificationServiceImpl implements SpecificationService {
         String providedFormattedName = editSpecificationDTO.getFormattedName ();
         Status providedStatus = editSpecificationDTO.getStatus ();
 
-        if (providedName != null ) {
+        if (providedName != null && !providedName.trim ().equals ( "" ) ) {
 
             Specification specificationByProvidedName = specificationRepository.getSpecificationByName ( providedName );
 
@@ -64,7 +81,7 @@ public class SpecificationServiceImpl implements SpecificationService {
             foundSpecification.setName ( providedName );
         }
 
-        if (providedFormattedName != null) {
+        if (providedFormattedName != null && !providedFormattedName.trim ().equals ( "" ) ) {
             foundSpecification.setFormattedName ( providedFormattedName );
         }
 
@@ -85,5 +102,6 @@ public class SpecificationServiceImpl implements SpecificationService {
 
         foundSpecification.setStatus ( Status.DELETED );
     }
+
 
 }
