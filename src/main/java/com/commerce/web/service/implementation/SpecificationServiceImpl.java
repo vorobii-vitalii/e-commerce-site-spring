@@ -32,14 +32,14 @@ public class SpecificationServiceImpl implements SpecificationService {
     }
 
     @Override
-    public SpecificationDTO getByName ( String name ) throws SpecificationNotFoundByNameException {
+    public Specification getByName ( String name ) throws SpecificationNotFoundByNameException {
 
         Specification foundSpecification = specificationRepository.getSpecificationByName ( name );
 
         if (foundSpecification == null)
             throw new SpecificationNotFoundByNameException ( name );
 
-        return SpecificationDTO.fromSpecification ( foundSpecification );
+        return foundSpecification;
     }
 
     @Override

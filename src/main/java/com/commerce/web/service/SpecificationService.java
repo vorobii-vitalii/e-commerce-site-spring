@@ -11,7 +11,7 @@ public interface SpecificationService {
 
     void addSpecification( SpecificationDTO specificationDTO ) throws SpecificationNameIsTakenException;
 
-    SpecificationDTO getByName(String name) throws SpecificationNotFoundByNameException;
+    Specification getByName(String name) throws SpecificationNotFoundByNameException;
 
     void editById( Long id, EditSpecificationDTO editSpecificationDTO ) throws SpecificationNotFoundException, SpecificationNameIsTakenException;
 
