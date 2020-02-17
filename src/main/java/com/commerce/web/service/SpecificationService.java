@@ -16,6 +16,8 @@ public interface SpecificationService {
 
     List<Specification> getAll() throws SpecificationResultIsEmptyException;
 
+    Specification getById(Long id) throws SpecificationNotFoundException;
+
     Specification getByName(String name) throws SpecificationNotFoundByNameException;
 
     void editById( Long id, EditSpecificationDTO editSpecificationDTO ) throws SpecificationNotFoundException, SpecificationNameIsTakenException;
