@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @CrossOrigin
 @RequestMapping(value = "/api/v1/admin/")
-public class AdminRestController {
+public class AdminUsersRestController {
 
     @Autowired
     private UserService userService;
