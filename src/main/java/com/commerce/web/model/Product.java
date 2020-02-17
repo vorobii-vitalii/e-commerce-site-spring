@@ -1,6 +1,7 @@
 package com.commerce.web.model;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ public class Product extends BaseEntity {
     @Column(name="description")
     private String description;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "product")
     private List<ProductSpecification> productSpecifications;
 
