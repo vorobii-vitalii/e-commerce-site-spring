@@ -1,8 +1,8 @@
 package com.commerce.web.constants;
 
-public class UserRolesConstants {
+public interface UserRolesConstants {
 
-    public static String ADMIN = "ADMIN";
-    public static String CUSTOMER = "CUSTOMER";
+    public static final String ADMIN = "ADMIN";
+    public static final String CUSTOMER = "CUSTOMER";
 
 }
