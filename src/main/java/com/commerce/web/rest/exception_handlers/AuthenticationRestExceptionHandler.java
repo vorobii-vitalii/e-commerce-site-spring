@@ -1,4 +1,4 @@
-package com.commerce.web.rest.authentication;
+package com.commerce.web.rest.exception_handlers;
 
 import com.commerce.web.exceptions.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -22,27 +22,12 @@ import java.util.stream.Collectors;
 public class AuthenticationRestExceptionHandler {
 
 
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(PasswordResetTokenHasExpired.class)
     public Map<String,String> handlePasswordResetTokenHasExpired( PasswordResetTokenHasExpired ex) {
         Map<String,String> body = new HashMap<> ( );
         body.put ( "error", "Password reset token has expired" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(AdminIsImmutableException.class)
-    public Map<String,String> handlePAdminIsImmutable( AdminIsImmutableException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Admin cannot be changed" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(RolesAreInvalidException.class)
-    public Map<String,String> handleRolesNotValid(RolesAreInvalidException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Provided roles are invalid" );
         return body;
     }
 
@@ -71,14 +56,6 @@ public class AuthenticationRestExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(UserWasNotFoundException.class)
-    public Map<String,String> handleUserWasNotFound(UserWasNotFoundException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "User wasn't found" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(AuthenticationException.class)
     public Map<String,String> handleAuthenticationError(AuthenticationException ex) {
         Map<String,String> body = new HashMap<> ( );
@@ -99,14 +76,6 @@ public class AuthenticationRestExceptionHandler {
     public Map<String,String> handleTokenWasExpired(VerificationTokenExpiredException ex) {
         Map<String,String> body = new HashMap<> ( );
         body.put ( "error", "Token has been expired" );
-        return body;
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(UsersResultIsEmptyException.class)
-    public Map<String,String> handleUsersResultIsEmpty(UsersResultIsEmptyException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Users were not found" );
         return body;
     }
 
@@ -134,6 +103,13 @@ public class AuthenticationRestExceptionHandler {
         return body;
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(JwtAuthenthicationException.class)
+    public Map<String,String> handleJwtTokenFailure(JwtAuthenthicationException ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Wrong JWT token" );
+        return body;
+    }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -141,5 +117,13 @@ public class AuthenticationRestExceptionHandler {
         return ex.getBindingResult ( ).getFieldErrors ( ).stream ( ).collect ( Collectors.toMap ( FieldError::getField ,
                 DefaultMessageSourceResolvable::getDefaultMessage ,
                 ( a , b ) -> b ) );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(Exception.class)
+    public Map<String, String> handleUnknownError( Exception ex) {
+        Map<String,String> body = new HashMap<> ( );
+        body.put ( "error", "Unknown error" );
+        return body;
     }
 }
