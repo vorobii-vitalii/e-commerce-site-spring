@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserService {
 
-    User register( User user);
+    User register( User user) throws UsersEmailIsTakenException;
 
     List<User> getAll() throws UsersResultIsEmptyException;
 
