@@ -14,7 +14,7 @@ public interface ProductService {
 
     void addProduct( AddProductRequestDTO addProductRequestDTO , User author ) throws SpecificationNotFoundByNameException;
 
-    void editProduct(Long id, EditProductRequestDTO editProductRequestDTO ) throws ProductNotFoundException, SpecificationNotFoundByNameException;
+    void editProductById ( Long id, EditProductRequestDTO editProductRequestDTO ) throws ProductNotFoundException, SpecificationNotFoundByNameException;
 
     List<Product> getAll() throws ProductsResultIsEmptyException;
 
