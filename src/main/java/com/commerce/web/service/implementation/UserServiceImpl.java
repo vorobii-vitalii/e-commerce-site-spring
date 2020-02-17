@@ -1,5 +1,6 @@
 package com.commerce.web.service.implementation;
 
+import com.commerce.web.constants.TokensExpirationConstants;
 import com.commerce.web.dto.UserDTO;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.model.*;
@@ -45,7 +46,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User register ( User user ) {
+    public User register ( User user ) throws UsersEmailIsTakenException {
+
+        String givenEmail = user.getEmail ();
+
+        if (userRepository.findByEmail ( givenEmail ) != null ) {
+            throw new UsersEmailIsTakenException ( givenEmail );
+        }
 
         Role roleCustomer = roleRepository.findByName ( "ROLE_CUSTOMER" );
 
@@ -90,7 +97,7 @@ public class UserServiceImpl implements UserService {
         }
 
         long tokenExpirationTime = foundUserVerification.getCreated ().getTime ();
-        Date validatedBy = new Date(tokenExpirationTime + 3600 * 2);
+        Date validatedBy = new Date(tokenExpirationTime + TokensExpirationConstants.VERIFICATION_TOKEN_EXP_TIME);
 
         if ( ! new Date ().before ( validatedBy)  ) {
             throw new VerificationTokenExpiredException ( "Token has expired" );
@@ -169,7 +176,7 @@ public class UserServiceImpl implements UserService {
                 throw new PasswordResetTokenIsNotActive ( "Password reset token " + token + " is not active" );
 
         long tokenExpirationTime = userPasswordReset.getCreated ().getTime ();
-        Date validatedBy = new Date(tokenExpirationTime + 3600 * 2);
+        Date validatedBy = new Date(tokenExpirationTime + TokensExpirationConstants.PASSWORD_TOKEN_EXP_TIME );
 
         if ( ! new Date ().before ( validatedBy)  )
             throw new PasswordResetTokenHasExpired ( "Password reset token " + token + " has expired" );
@@ -208,15 +215,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById ( Long id ) throws UserWasNotFoundException, UserIsDeletedException {
+    public User findById ( Long id ) throws UserWasNotFoundException {
         User foundUser = userRepository.findById ( id ).orElse ( null );
 
         if (foundUser == null)
             throw new UserWasNotFoundException ( "User with id " + id + " not found" );
-
-        if (foundUser.getStatus () == Status.DELETED ) {
-            throw new UserIsDeletedException ( "User with id " + id + " is deleted" );
-        }
 
         log.info ( "findById {}", foundUser );
         return foundUser;
@@ -258,11 +261,9 @@ public class UserServiceImpl implements UserService {
             foundUser.setStatus ( providedStatus );
         }
 
-        log.info ( "Updated user {}", foundUser );
-
-        log.info ( "USER ROLES {}", foundUser.getRoles () );
-
         userRepository.save ( foundUser );
+
+        log.info ( "Updated user {}", foundUser );
     }
 
 
