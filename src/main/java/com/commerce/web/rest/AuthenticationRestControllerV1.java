@@ -1,4 +1,4 @@
-package com.commerce.web.rest.authentication;
+package com.commerce.web.rest;
 
 import com.commerce.web.constants.SiteConstants;
 import com.commerce.web.dto.*;
@@ -10,8 +10,10 @@ import com.commerce.web.model.User;
 import com.commerce.web.security.jwt.JwtTokenProvider;
 import com.commerce.web.service.MailService;
 import com.commerce.web.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@Slf4j
+@CrossOrigin
+@RequestMapping(value = "/api/v1/auth")
 public class AuthenticationRestControllerV1 {
 
     private final AuthenticationManager authenticationManager;
@@ -43,9 +47,11 @@ public class AuthenticationRestControllerV1 {
         this.userService = userService;
     }
 
-    @PostMapping(value = "register")
+    @PostMapping(value = "register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
-    public void register( @Valid @RequestBody RegistrationRequestDTO registrationRequestDTO ) {
+    public void register( @Valid @RequestBody RegistrationRequestDTO registrationRequestDTO ) throws UsersEmailIsTakenException {
+
+        log.info ( "Register request {}", registrationRequestDTO );
 
         User registeredUser = userService.register ( registrationRequestDTO.toUser () );
 
@@ -72,6 +78,7 @@ public class AuthenticationRestControllerV1 {
 
         Map<Object,Object> response = new HashMap<> ();
         response.put ( "email" , email );
+        response.put ( "roles", user.getRoles ().stream ().map ( role -> role.getName ()) );
         response.put ( "token" , token );
 
         return ResponseEntity.ok ( response );
