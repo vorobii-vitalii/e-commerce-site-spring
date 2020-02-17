@@ -1,17 +1,26 @@
 package com.commerce.web.dto;
 
-
+import com.commerce.web.model.ProductSpecification;
 import lombok.Data;
-
-import javax.validation.constraints.NotEmpty;
 
 @Data
 public class ProductSpecificationDTO {
 
-    @NotEmpty(message = "Name of specification is required")
     private String name;
 
-    @NotEmpty(message = "Value of specification is required")
+    private String formattedName;
+
     private String value;
+
+    public static ProductSpecificationDTO  fromProductSpecification( ProductSpecification productSpecification ) {
+
+        ProductSpecificationDTO productSpecificationDTO = new ProductSpecificationDTO ();
+
+        productSpecificationDTO.setName ( productSpecification.getSpecification ().getName () );
+        productSpecificationDTO.setFormattedName ( productSpecification.getSpecification ().getFormattedName () );
+        productSpecificationDTO.setValue ( productSpecification.getValue () );
+
+        return productSpecificationDTO;
+    }
 
 }

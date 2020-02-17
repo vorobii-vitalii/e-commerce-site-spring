@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 public class RegistrationRequestDTO {
 
-    @Email(message = "Email doesnt match with pattern") @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email doesn't match with pattern") @NotBlank(message = "Email is mandatory")
     private String email;
 
     @NotBlank(message = "Password is mandatory")
