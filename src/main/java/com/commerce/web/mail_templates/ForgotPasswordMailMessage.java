@@ -8,18 +8,18 @@ public class ForgotPasswordMailMessage implements MailGenerator {
     private String token;
     private String baseUrl;
 
-    public ForgotPasswordMailMessage(String email,String token,String baseUrl) {
+    public ForgotPasswordMailMessage(String email, String token, String baseUrl) {
         this.email = email;
         this.token = token;
         this.baseUrl = baseUrl;
     }
 
     @Override
-    public SimpleMailMessage generate () {
-        SimpleMailMessage mailMessage = new SimpleMailMessage ( );
-        mailMessage.setTo ( email );
-        mailMessage.setSubject ( "Reset password" );
-        mailMessage.setText ( "You can reset your password by link: " + baseUrl + token + " .");
+    public SimpleMailMessage generate() {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(email);
+        mailMessage.setSubject("Reset password");
+        mailMessage.setText("You can reset your password by link: " + baseUrl + token + " .");
         return mailMessage;
     }
 }
