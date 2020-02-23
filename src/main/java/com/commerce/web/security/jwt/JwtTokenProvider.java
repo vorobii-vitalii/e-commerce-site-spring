@@ -3,7 +3,6 @@ package com.commerce.web.security.jwt;
 import com.commerce.web.model.Role;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,12 +28,8 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expired}")
     private long validityInMilliseconds;
 
-    private final UserDetailsService userDetailsService;
-
     @Autowired
-    public JwtTokenProvider( @Qualifier(value = "jwt_user_details_service") UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    private UserDetailsService userDetailsService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -93,7 +88,9 @@ public class JwtTokenProvider {
     private List<String> getRoleNames(List<Role> userRoles) {
         List<String> result = new ArrayList<>();
 
-        userRoles.forEach(role -> result.add(role.getName()));
+        userRoles.forEach(role -> {
+            result.add(role.getName());
+        });
 
         return result;
     }
