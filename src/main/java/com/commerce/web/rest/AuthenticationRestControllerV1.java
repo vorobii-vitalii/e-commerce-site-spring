@@ -5,6 +5,7 @@ import com.commerce.web.dto.*;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.mail_templates.AccountValidationMailMessage;
 import com.commerce.web.mail_templates.ForgotPasswordMailMessage;
+import com.commerce.web.model.Role;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
 import com.commerce.web.security.jwt.JwtTokenProvider;
@@ -40,7 +41,7 @@ public class AuthenticationRestControllerV1 {
             JwtTokenProvider jwtTokenProvider,
             MailService mailService,
             UserService userService
-    ){
+    ) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
@@ -49,58 +50,58 @@ public class AuthenticationRestControllerV1 {
 
     @PostMapping(value = "register", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
-    public void register( @Valid @RequestBody RegistrationRequestDTO registrationRequestDTO ) throws UsersEmailIsTakenException {
+    public void register(@Valid @RequestBody RegistrationRequestDTO registrationRequestDTO) throws UsersEmailIsTakenException {
 
-        log.info ( "Register request {}", registrationRequestDTO );
+        log.info("Register request {}", registrationRequestDTO);
 
-        User registeredUser = userService.register ( registrationRequestDTO.toUser () );
+        User registeredUser = userService.register(registrationRequestDTO.toUser());
 
-        String email = registeredUser.getEmail ();
-        String token = registeredUser.getUserVerification ().getToken ();
+        String email = registeredUser.getEmail();
+        String token = registeredUser.getUserVerification().getToken();
 
         // Send email to person
-        this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
+        this.mailService.send(new AccountValidationMailMessage(email, token, SiteConstants.BASE_URL).generate());
     }
 
 
     @PostMapping(value = "login")
-    public ResponseEntity login( @Valid @RequestBody AuthenticationRequestDTO requestDTO ) throws UserWasNotFoundException, UserNotActiveException, UserWasNotFoundByEmailException {
+    public ResponseEntity<Map<Object, Object>> login(@Valid @RequestBody AuthenticationRequestDTO requestDTO) throws UserWasNotFoundException, UserNotActiveException, UserWasNotFoundByEmailException {
 
-        String email = requestDTO.getEmail ();
+        String email = requestDTO.getEmail();
 
-        authenticationManager.authenticate ( new UsernamePasswordAuthenticationToken ( email, requestDTO.getPassword () ) );
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, requestDTO.getPassword()));
 
-        User user = userService.findByEmail ( email );
+        User user = userService.findByEmail(email);
 
-        if( user.getStatus () != Status.ACTIVE )  throw new UserNotActiveException ( email );
+        if (user.getStatus() != Status.ACTIVE) throw new UserNotActiveException(email);
 
-        String token = jwtTokenProvider.createToken ( email, user.getRoles () );
+        String token = jwtTokenProvider.createToken(email, user.getRoles());
 
-        Map<Object,Object> response = new HashMap<> ();
-        response.put ( "email" , email );
-        response.put ( "roles", user.getRoles ().stream ().map ( role -> role.getName ()) );
-        response.put ( "token" , token );
+        Map<Object, Object> response = new HashMap<>();
+        response.put("email", email);
+        response.put("roles", user.getRoles().stream().map(Role::getName));
+        response.put("token", token);
 
-        return ResponseEntity.ok ( response );
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
     @GetMapping(value = "verify/{token}")
-    public ResponseEntity<UserDTO> verify( @PathVariable(name="token") String token) throws VerificationTokenExpiredException,VerificationTokenHasNotMatchedException {
+    public ResponseEntity<UserDTO> verify(@PathVariable(name = "token") String token) throws VerificationTokenExpiredException, VerificationTokenHasNotMatchedException {
 
-        User verifiedUser = userService.verifyByToken ( token );
+        User verifiedUser = userService.verifyByToken(token);
 
-        return ResponseEntity.ok ( UserDTO.fromUser ( verifiedUser) );
+        return ResponseEntity.ok(UserDTO.fromUser(verifiedUser));
     }
 
     @PostMapping(value = "resend")
     @ResponseStatus(value = HttpStatus.OK)
-    public void resendToken( @Valid @RequestBody VerifyAccountDTO verifyAccountDTO ) throws UserIsAlreadyVerifiedException, UserWasNotFoundByEmailException {
+    public void resendToken(@Valid @RequestBody VerifyAccountDTO verifyAccountDTO) throws UserIsAlreadyVerifiedException, UserWasNotFoundByEmailException {
 
-        String email = verifyAccountDTO.getEmail ();
-        String token = userService.regenerateVerificationToken ( email );
+        String email = verifyAccountDTO.getEmail();
+        String token = userService.regenerateVerificationToken(email);
 
         // Resend token to person
-        this.mailService.send ( new AccountValidationMailMessage(email,token, SiteConstants.BASE_URL ).generate () );
+        this.mailService.send(new AccountValidationMailMessage(email, token, SiteConstants.BASE_URL).generate());
     }
 
 
@@ -108,23 +109,23 @@ public class AuthenticationRestControllerV1 {
     @ResponseStatus(value = HttpStatus.OK)
     public void forgotPassword(@Valid @RequestBody VerifyAccountDTO verifyAccountDTO) throws UserWasNotFoundByEmailException, UserNotActiveException {
 
-        String email = verifyAccountDTO.getEmail ();
+        String email = verifyAccountDTO.getEmail();
 
-        String token = userService.resetPasswordByEmail ( email );
+        String token = userService.resetPasswordByEmail(email);
 
-        this.mailService.send ( new ForgotPasswordMailMessage ( email,token,SiteConstants.BASE_URL+"/reset/" ).generate () );
+        this.mailService.send(new ForgotPasswordMailMessage(email, token, SiteConstants.BASE_URL + "/reset/").generate());
     }
 
 
     @PostMapping(value = "resetPassword")
     @ResponseStatus(value = HttpStatus.OK)
-    public void resetPassword( @Valid @RequestBody PasswordResetDTO passwordResetDTO ) throws PasswordResetTokenIsNotActive, PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenHasExpired {
+    public void resetPassword(@Valid @RequestBody PasswordResetDTO passwordResetDTO) throws PasswordResetTokenIsNotActive, PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenHasExpired {
 
-        String token = passwordResetDTO.getToken ();
+        String token = passwordResetDTO.getToken();
 
-        String password = passwordResetDTO.getPassword ();
+        String password = passwordResetDTO.getPassword();
 
-        this.userService.changePasswordByToken ( token, password );
+        this.userService.changePasswordByToken(token, password);
 
     }
 

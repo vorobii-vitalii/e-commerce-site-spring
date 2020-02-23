@@ -31,36 +31,35 @@ public class AdminSpecificationRestController {
 
     @GetMapping(value = "")
     public ResponseEntity<List<SpecificationDTO>> getAllSpecifications() throws SpecificationResultIsEmptyException {
-        return new ResponseEntity ( specificationService.getAll ().stream ()
-                                            .map ( specification -> SpecificationDTO.fromSpecification ( specification ) )
-                                            .collect ( Collectors.toList ( )), HttpStatus.OK);
+        return new ResponseEntity<>(specificationService.getAll().stream()
+                .map(SpecificationDTO::fromSpecification)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<SpecificationDTO> getSpecificationById( @PathVariable @Positive Long id ) throws SpecificationNotFoundException {
-        return new ResponseEntity ( SpecificationDTO.fromSpecification ( specificationService.getById ( id )), HttpStatus.OK );
+    public ResponseEntity<SpecificationDTO> getSpecificationById(@PathVariable @Positive Long id) throws SpecificationNotFoundException {
+        return new ResponseEntity<>(SpecificationDTO.fromSpecification(specificationService.getById(id)), HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/add")
-    @ResponseStatus(HttpStatus.OK)
-    public void addSpecification( @Valid @RequestBody SpecificationDTO specificationDTO ) throws SpecificationNameIsTakenException {
-        specificationService.addSpecification ( specificationDTO );
+    public ResponseEntity<SpecificationDTO> addSpecification(@Valid @RequestBody SpecificationDTO specificationDTO) throws SpecificationNameIsTakenException {
+        return new ResponseEntity<>(specificationService.addSpecification(specificationDTO), HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/edit/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void editSpecification( @PathVariable @Positive Long id, @Valid @RequestBody EditSpecificationDTO specificationDTO ) throws SpecificationNotFoundException, SpecificationNameIsTakenException {
-        specificationService.editById ( id,specificationDTO );
+    public void editSpecification(@PathVariable @Positive Long id, @Valid @RequestBody EditSpecificationDTO specificationDTO) throws SpecificationNotFoundException, SpecificationNameIsTakenException {
+        specificationService.editById(id, specificationDTO);
     }
 
 
     @PostMapping(value = "/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteSpecification( @PathVariable @Positive Long id ) throws SpecificationNotFoundException {
-        specificationService.deleteById ( id );
+    public void deleteSpecification(@PathVariable @Positive Long id) throws SpecificationNotFoundException {
+        specificationService.deleteById(id);
     }
 
 }

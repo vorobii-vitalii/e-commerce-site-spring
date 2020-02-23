@@ -1,7 +1,6 @@
 package com.commerce.web.rest;
 
 import com.commerce.web.dto.UserDTO;
-import com.commerce.web.dto.VerifyAccountDTO;
 import com.commerce.web.exceptions.*;
 import com.commerce.web.model.User;
 import com.commerce.web.service.UserService;
@@ -19,40 +18,40 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/api/v1/admin/")
 public class AdminUsersRestController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // GET ENDPOINTS
+    @Autowired
+    public AdminUsersRestController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping(value = "users")
-    public ResponseEntity<List<UserDTO>> getAllUsers( ) throws UsersResultIsEmptyException {
+    public ResponseEntity<List<UserDTO>> getAllUsers() throws UsersResultIsEmptyException {
 
-        List<User> users = userService.getAll ();
+        List<User> users = userService.getAll();
 
-        return new ResponseEntity (
-                users.stream ().map ( user -> UserDTO.fromUser ( user ) ).collect ( Collectors.toList ( ) ),
+        return new ResponseEntity<>(
+                users.stream().map(UserDTO::fromUser).collect(Collectors.toList()),
                 HttpStatus.OK);
     }
 
-    @GetMapping(value="users/{id}")
-    public ResponseEntity<UserDTO> getUserById( @PathVariable(name="id") Long id) throws UserWasNotFoundException, UserIsDeletedException {
-        User user = userService.findById ( id );
-        return new ResponseEntity<UserDTO> ( UserDTO.fromUser ( user ), HttpStatus.OK );
+    @GetMapping(value = "users/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) throws UserWasNotFoundException, UserIsDeletedException {
+        User user = userService.findById(id);
+        return new ResponseEntity<>(UserDTO.fromUser(user), HttpStatus.OK);
     }
 
-    // PATCH ENDPOINTS
 
-    @RequestMapping(value = "users/edit/{id}",method = RequestMethod.POST)
+    @RequestMapping(value = "users/edit/{id}", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public void changeUserById(@PathVariable(name="id") Long id, @Valid @RequestBody UserDTO userDTO) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException {
-        userService.changeUser ( id, userDTO );
+    public void changeUserById(@PathVariable(name = "id") Long id, @Valid @RequestBody UserDTO userDTO) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException {
+        userService.changeUser(id, userDTO);
     }
 
-
-    @RequestMapping(value = "users/{id}",method = RequestMethod.POST)
+    @RequestMapping(value = "users/{id}", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public void deleteUserById(@PathVariable(name = "id") Long id) throws UserWasNotFoundException, AdminIsImmutableException {
-        userService.deleteUser ( id );
+        userService.deleteUser(id);
     }
 
 

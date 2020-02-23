@@ -1,8 +1,8 @@
 package com.commerce.web.rest;
 
 import com.commerce.web.dto.AddProductRequestDTO;
+import com.commerce.web.dto.AdminProductDTO;
 import com.commerce.web.dto.EditProductRequestDTO;
-import com.commerce.web.dto.ProductDTO;
 import com.commerce.web.exceptions.ProductNotFoundException;
 import com.commerce.web.exceptions.ProductsResultIsEmptyException;
 import com.commerce.web.exceptions.SpecificationNotFoundByNameException;
@@ -30,49 +30,47 @@ public class AdminProductsRestController {
     private final ProductService productService;
 
     @Autowired
-    public AdminProductsRestController(UserService userService,ProductService productService) {
+    public AdminProductsRestController(UserService userService, ProductService productService) {
         this.userService = userService;
         this.productService = productService;
     }
 
 
     @GetMapping(value = "")
-    public ResponseEntity<List<ProductDTO>> getProducts() throws ProductsResultIsEmptyException {
-        return new ResponseEntity<>(productService.getAll ()
-                    .stream ()
-                    .map ( product -> ProductDTO.fromProduct ( product ) )
-                    .collect ( Collectors.toList ( )),
+    public ResponseEntity<List<AdminProductDTO>> getProducts() throws ProductsResultIsEmptyException {
+        return new ResponseEntity<>(productService.getAll()
+                .stream()
+                .map(AdminProductDTO::fromProduct)
+                .collect(Collectors.toList()),
                 HttpStatus.OK);
     }
 
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProductDTO> getProductById( @PathVariable @Positive Long id ) throws ProductNotFoundException {
-        return new ResponseEntity ( ProductDTO.fromProduct ( productService.getById ( id )), HttpStatus.OK );
+    public ResponseEntity<AdminProductDTO> getProductById(@PathVariable @Positive Long id) throws ProductNotFoundException {
+        return new ResponseEntity<>(AdminProductDTO.fromProduct(productService.getById(id)), HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/add")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void addProduct( @Valid @RequestBody AddProductRequestDTO addProductRequestDTO , Authentication authentication ) throws UserWasNotFoundByEmailException, SpecificationNotFoundByNameException {
-
-        User authorOfProduct = userService.findByEmail ( authentication.getName () );
-
-        productService.addProduct ( addProductRequestDTO ,authorOfProduct );
+    public ResponseEntity<AdminProductDTO> addProduct(@Valid @RequestBody AddProductRequestDTO addProductRequestDTO, Authentication authentication) throws UserWasNotFoundByEmailException, SpecificationNotFoundByNameException {
+        User authorOfProduct = userService.findByEmail(authentication.getName());
+        return new ResponseEntity<>(productService.addProduct(addProductRequestDTO, authorOfProduct), HttpStatus.OK);
     }
 
 
     @PostMapping(value = "/edit/{id}")
     @ResponseStatus(value = HttpStatus.OK)
-    public void editProduct( @PathVariable @Positive Long id, @Valid @RequestBody EditProductRequestDTO editProductRequestDTO ) throws ProductNotFoundException, SpecificationNotFoundByNameException {
-        productService.editProductById ( id , editProductRequestDTO );
+    public void editProduct(@PathVariable @Positive Long id, @Valid @RequestBody EditProductRequestDTO editProductRequestDTO) throws ProductNotFoundException, SpecificationNotFoundByNameException {
+        productService.editProductById(id, editProductRequestDTO);
     }
 
 
     @PostMapping(value = "/delete/{id}")
     @ResponseStatus(value = HttpStatus.OK)
-    public void editProduct(@PathVariable @Positive Long id) throws ProductNotFoundException {
-        productService.deleteById ( id );
+    public void deleteProduct(@PathVariable @Positive Long id) throws ProductNotFoundException {
+        productService.deleteById(id);
     }
+
 
 }

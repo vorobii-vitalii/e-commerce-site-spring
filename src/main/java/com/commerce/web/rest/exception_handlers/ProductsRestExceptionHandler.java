@@ -15,18 +15,18 @@ public class ProductsRestExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ProductsResultIsEmptyException.class)
-    public Map<String,String> handleProductsResultIsEmpty( ProductsResultIsEmptyException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Products were not found" );
+    public Map<String, String> handleProductsResultIsEmpty(ProductsResultIsEmptyException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", "Products were not found");
         return body;
     }
 
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ProductNotFoundException.class)
-    public Map<String,String> handleProductNotFoundException( ProductNotFoundException ex) {
-        Map<String,String> body = new HashMap<> ( );
-        body.put ( "error", "Product wasn't found" );
+    public Map<String, String> handleProductNotFoundException(ProductNotFoundException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", "Product wasn't found");
         return body;
     }
 
