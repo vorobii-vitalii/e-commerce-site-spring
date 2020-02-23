@@ -1,38 +1,38 @@
 package com.commerce.web.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(name="products")
+@Table(name = "products")
 public class Product extends BaseEntity {
 
-    @NotBlank(message = "Name is mandatory")
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="description")
+    @Column(name = "description")
     private String description;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "product")
     private List<ProductSpecification> productSpecifications;
 
-    @Positive(message = "Cost of product is required")
-    @Column(name="cost")
+    @Column(name = "cost")
     private Double cost;
 
     @ManyToOne
     @JoinColumn(name = "user_id",
-                referencedColumnName = "id",
-                nullable = true
+            referencedColumnName = "id"
     )
     private User user;
+
+    @OneToMany(mappedBy = "product")
+    private List<Review> reviews;
 
 }

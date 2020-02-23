@@ -1,6 +1,7 @@
 package com.commerce.web.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -8,41 +9,42 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Data
 public class User extends BaseEntity {
 
     @Email
-    @Column(name="email",unique = true)
+    @Column(name = "email", unique = true)
     @NotBlank(message = "Email is mandatory")
     private String email;
 
     @NotBlank(message = "Password is mandatory")
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
     @NotBlank(message = "First name is mandatory")
-    @Column(name="first_name")
+    @Column(name = "first_name")
     private String firstName;
 
     @NotBlank(message = "Last name is mandatory")
-    @Column(name="last_name")
+    @Column(name = "last_name")
     private String lastName;
 
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name="user_roles",
+            name = "user_roles",
             joinColumns = {
                     @JoinColumn(
-                            name="user_id",
+                            name = "user_id",
                             referencedColumnName = "id"
                     ),
             },
             inverseJoinColumns = {
                     @JoinColumn(
-                            name="role_id",
+                            name = "role_id",
                             referencedColumnName = "id"
                     )
             }
@@ -51,19 +53,19 @@ public class User extends BaseEntity {
 
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="user_verification_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_verification_id", referencedColumnName = "id")
     private UserVerification userVerification;
 
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="user_password_reset_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_password_reset_id", referencedColumnName = "id")
     private UserPasswordReset userPasswordReset;
 
     @OneToMany(mappedBy = "user")
     private Set<Product> products;
 
     public String toString() {
-        return "User #" + getId ();
+        return "User #" + getId();
     }
 
 }

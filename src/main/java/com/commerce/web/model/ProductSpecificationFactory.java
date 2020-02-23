@@ -7,11 +7,11 @@ public final class ProductSpecificationFactory {
 
     public static ProductSpecification create(Product product, Specification specification, String value) {
 
-        ProductSpecification productSpecification = new ProductSpecification ();
+        ProductSpecification productSpecification = new ProductSpecification();
 
-        productSpecification.setProduct ( product );
-        productSpecification.setSpecification ( specification );
-        productSpecification.setValue ( value );
+        productSpecification.setProduct(product);
+        productSpecification.setSpecification(specification);
+        productSpecification.setValue(value);
 
         return productSpecification;
     }

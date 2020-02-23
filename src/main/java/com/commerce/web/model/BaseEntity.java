@@ -16,14 +16,14 @@ public class BaseEntity {
     private Long id;
 
     @CreatedDate
-    @Column(name="created")
+    @Column(name = "created")
     private Date created;
 
     @LastModifiedDate
-    @Column(name="updated")
+    @Column(name = "updated")
     private Date updated;
 
-    @Column(name="status")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private Status status;
 }
