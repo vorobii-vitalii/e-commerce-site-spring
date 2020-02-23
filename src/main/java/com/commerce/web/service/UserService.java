@@ -8,23 +8,25 @@ import java.util.List;
 
 public interface UserService {
 
-    User register( User user) throws UsersEmailIsTakenException;
+    User register(User user);
 
-    List<User> getAll() throws UsersResultIsEmptyException;
+    List<User> getAll();
 
-    User findByEmail(String email) throws UserWasNotFoundByEmailException;
+    User findByEmail(String email);
 
-    User findById(Long id) throws UserWasNotFoundException, UserIsDeletedException;
+    User findById(Long id);
 
-    User verifyByToken(String token) throws VerificationTokenExpiredException, VerificationTokenHasNotMatchedException;
+    User verifyByToken(String token);
 
-    String regenerateVerificationToken ( String email) throws UserWasNotFoundByEmailException, UserIsAlreadyVerifiedException;
+    String regenerateVerificationToken(String email);
 
-    String resetPasswordByEmail(String email) throws UserWasNotFoundByEmailException, UserNotActiveException;
+    String resetPasswordByEmail(String email);
 
-    void changePasswordByToken(String token,String password) throws PasswordResetTokenIsNotValid, VerificationTokenExpiredException, PasswordResetTokenIsNotActive, PasswordResetTokenHasExpired;
+    void changePasswordByToken(String token, String password);
 
-    void changeUser( Long id, UserDTO userDTO ) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException;
+    void changeUser(Long id, UserDTO userDTO);
 
-    void deleteUser ( Long id) throws UserWasNotFoundException, AdminIsImmutableException;
+    void deleteUser(Long id);
+
+    void editProfile(UserDTO userDTO, User user);
 }

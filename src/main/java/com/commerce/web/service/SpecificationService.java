@@ -12,16 +12,16 @@ import java.util.List;
 
 public interface SpecificationService {
 
-    void addSpecification( SpecificationDTO specificationDTO ) throws SpecificationNameIsTakenException;
+    SpecificationDTO addSpecification(SpecificationDTO specificationDTO);
 
-    List<Specification> getAll() throws SpecificationResultIsEmptyException;
+    List<Specification> getAll();
 
-    Specification getById(Long id) throws SpecificationNotFoundException;
+    Specification getById(Long id);
 
-    Specification getByName(String name) throws SpecificationNotFoundByNameException;
+    Specification getByName(String name);
 
-    void editById( Long id, EditSpecificationDTO editSpecificationDTO ) throws SpecificationNotFoundException, SpecificationNameIsTakenException;
+    void editById(Long id, EditSpecificationDTO editSpecificationDTO);
 
-    void deleteById(Long id) throws SpecificationNotFoundException;
+    void deleteById(Long id);
 
 }

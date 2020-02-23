@@ -1,6 +1,7 @@
 package com.commerce.web.service;
 
 import com.commerce.web.dto.AddProductRequestDTO;
+import com.commerce.web.dto.AdminProductDTO;
 import com.commerce.web.dto.EditProductRequestDTO;
 import com.commerce.web.exceptions.ProductNotFoundException;
 import com.commerce.web.exceptions.ProductsResultIsEmptyException;
@@ -12,14 +13,14 @@ import java.util.List;
 
 public interface ProductService {
 
-    void addProduct( AddProductRequestDTO addProductRequestDTO , User author ) throws SpecificationNotFoundByNameException;
+    AdminProductDTO addProduct(AddProductRequestDTO addProductRequestDTO, User author);
 
-    void editProductById ( Long id, EditProductRequestDTO editProductRequestDTO ) throws ProductNotFoundException, SpecificationNotFoundByNameException;
+    void editProductById(Long id, EditProductRequestDTO editProductRequestDTO);
 
-    List<Product> getAll() throws ProductsResultIsEmptyException;
+    List<Product> getAll();
 
-    Product getById(Long id) throws ProductNotFoundException;
+    Product getById(Long id);
 
-    void deleteById ( Long id ) throws ProductNotFoundException;
+    void deleteById(Long id);
 
 }

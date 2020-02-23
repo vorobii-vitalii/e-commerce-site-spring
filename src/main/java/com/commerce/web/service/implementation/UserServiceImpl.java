@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,12 +28,12 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl (
-                UserRepository userRepository,
-                UserVerificationRepository userVerificationRepository,
-                UserPasswordResetRepository userPasswordResetRepository,
-                RoleRepository roleRepository,
-                BCryptPasswordEncoder passwordEncoder
+    public UserServiceImpl(
+            UserRepository userRepository,
+            UserVerificationRepository userVerificationRepository,
+            UserPasswordResetRepository userPasswordResetRepository,
+            RoleRepository roleRepository,
+            BCryptPasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userVerificationRepository = userVerificationRepository;
@@ -46,244 +43,261 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User register ( User user ) throws UsersEmailIsTakenException {
+    public User register(User user)  {
 
-        String givenEmail = user.getEmail ();
+        String givenEmail = user.getEmail();
 
-        if (userRepository.findByEmail ( givenEmail ) != null ) {
-            throw new UsersEmailIsTakenException ( givenEmail );
+        if (userRepository.findByEmail(givenEmail) != null) {
+            throw new UsersEmailIsTakenException(givenEmail);
         }
 
-        Role roleCustomer = roleRepository.findByName ( "ROLE_CUSTOMER" );
+        Role roleCustomer = roleRepository.findByName("ROLE_CUSTOMER");
 
-        List<Role> userRoles = new ArrayList<> ();
+        List<Role> userRoles = new ArrayList<>();
 
         // Attach customer role to new user
-        userRoles.add ( roleCustomer );
+        userRoles.add(roleCustomer);
 
         // Encode the user's password
-        user.setPassword(passwordEncoder.encode ( user.getPassword() ));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Attach roles to user
         user.setRoles(userRoles);
 
         // By default the new user is not active (has to be verified)
-        user.setStatus( Status.NOT_ACTIVE );
+        user.setStatus(Status.NOT_ACTIVE);
 
         User registeredUser = userRepository.save(user);
 
         // Generate random UUID
-        UUID randomUUID = UUID.randomUUID ();
+        UUID randomUUID = UUID.randomUUID();
 
-        UserVerification userVerification = userVerificationRepository.save( UserVerificationFactory.create (
-                registeredUser, randomUUID.toString (), Status.ACTIVE
+        UserVerification userVerification = userVerificationRepository.save(UserVerificationFactory.create(
+                registeredUser, randomUUID.toString(), Status.ACTIVE
         ));
 
-        registeredUser.setUserVerification ( userVerification );
+        registeredUser.setUserVerification(userVerification);
 
-        userRepository.save ( registeredUser );
+        userRepository.save(registeredUser);
 
         log.info("IN REGISTER use {} successfully registered", registeredUser);
         return registeredUser;
     }
 
     @Override
-    public User verifyByToken ( String token ) throws VerificationTokenExpiredException, VerificationTokenHasNotMatchedException {
+    public User verifyByToken(String token) {
 
-        UserVerification foundUserVerification = userVerificationRepository.findByToken ( token );
+        UserVerification foundUserVerification = userVerificationRepository.findByToken(token);
 
         if (foundUserVerification == null) {
-            throw new VerificationTokenHasNotMatchedException ( "Token wasn't found" );
+            throw new VerificationTokenHasNotMatchedException("Token wasn't found");
         }
 
-        long tokenExpirationTime = foundUserVerification.getCreated ().getTime ();
+        long tokenExpirationTime = foundUserVerification.getCreated().getTime();
         Date validatedBy = new Date(tokenExpirationTime + TokensExpirationConstants.VERIFICATION_TOKEN_EXP_TIME);
 
-        if ( ! new Date ().before ( validatedBy)  ) {
-            throw new VerificationTokenExpiredException ( "Token has expired" );
+        if (!new Date().before(validatedBy)) {
+            throw new VerificationTokenExpiredException("Token has expired");
         }
 
-        User matchedUser = foundUserVerification.getUser ();
-        matchedUser.setStatus ( Status.ACTIVE );
+        User matchedUser = foundUserVerification.getUser();
+        matchedUser.setStatus(Status.ACTIVE);
 
-        log.info ( "Verified user {} by token {}",matchedUser,token);
+        log.info("Verified user {} by token {}", matchedUser, token);
 
-        userRepository.save ( matchedUser );
+        userRepository.save(matchedUser);
 
         return matchedUser;
     }
 
     @Override
-    public String regenerateVerificationToken ( String email ) throws UserWasNotFoundByEmailException, UserIsAlreadyVerifiedException {
+    public String regenerateVerificationToken(String email) {
 
-        User user = userRepository.findByEmail ( email );
+        User user = userRepository.findByEmail(email);
 
         if (user == null) {
-            throw new UserWasNotFoundByEmailException ( "User wasn't found by email: " + email );
+            throw new UserWasNotFoundByEmailException("User wasn't found by email: " + email);
         }
 
-        if (user.getStatus () == Status.ACTIVE) {
-            throw new UserIsAlreadyVerifiedException ( "User with email " + email + " is verified!" );
+        if (user.getStatus() == Status.ACTIVE) {
+            throw new UserIsAlreadyVerifiedException("User with email " + email + " is verified!");
         }
 
-        UserVerification userVerification = user.getUserVerification ();
+        UserVerification userVerification = user.getUserVerification();
 
-        String newToken = UUID.randomUUID ().toString ();
+        String newToken = UUID.randomUUID().toString();
 
-        userVerification.setCreated ( new Date() );
-        userVerification.setToken ( newToken );
+        userVerification.setCreated(new Date());
+        userVerification.setToken(newToken);
 
         userVerificationRepository.save(userVerification);
 
-        log.info ( "Generated new token for {} ", user );
+        log.info("Generated new token for {} ", user);
 
         return newToken;
     }
 
     @Override
-    public String resetPasswordByEmail ( String email ) throws UserWasNotFoundByEmailException, UserNotActiveException {
+    public String resetPasswordByEmail(String email) {
 
-        User user = userRepository.findByEmail ( email );
+        User user = userRepository.findByEmail(email);
 
-        if ( user == null )
-            throw new UserWasNotFoundByEmailException ( "User wasn't found by email: " + email );
+        if (user == null)
+            throw new UserWasNotFoundByEmailException("User wasn't found by email: " + email);
 
-        if ( user.getStatus () != Status.ACTIVE )
-            throw new UserNotActiveException ( "User is not yet active to change his password" );
+        if (user.getStatus() != Status.ACTIVE)
+            throw new UserNotActiveException("User is not yet active to change his password");
 
-        String token = UUID.randomUUID ().toString ();
+        String token = UUID.randomUUID().toString();
 
-        UserPasswordReset userPasswordReset = userPasswordResetRepository.save ( UserPasswordResetFactory.create ( token, user, Status.ACTIVE ));
+        UserPasswordReset userPasswordReset = userPasswordResetRepository.save(UserPasswordResetFactory.create(token, user, Status.ACTIVE));
 
-        user.setUserPasswordReset ( userPasswordReset );
+        user.setUserPasswordReset(userPasswordReset);
 
-        log.info ( "Trying to reset password by email {} ", email );
+        log.info("Trying to reset password by email {} ", email);
 
-        userRepository.save ( user );
+        userRepository.save(user);
 
         return token;
     }
 
     @Override
-    public void changePasswordByToken ( String token, String password ) throws PasswordResetTokenIsNotValid,  PasswordResetTokenIsNotActive, PasswordResetTokenHasExpired {
+    public void changePasswordByToken(String token, String password) {
 
-        UserPasswordReset userPasswordReset = userPasswordResetRepository.findByToken ( token );
+        UserPasswordReset userPasswordReset = userPasswordResetRepository.findByToken(token);
 
         if (userPasswordReset == null)
-                throw new PasswordResetTokenIsNotValid ( "Password reset token " + token + " is invalid" );
+            throw new PasswordResetTokenIsNotValid("Password reset token " + token + " is invalid");
 
-        if (userPasswordReset.getStatus () != Status.ACTIVE)
-                throw new PasswordResetTokenIsNotActive ( "Password reset token " + token + " is not active" );
+        if (userPasswordReset.getStatus() != Status.ACTIVE)
+            throw new PasswordResetTokenIsNotActive("Password reset token " + token + " is not active");
 
-        long tokenExpirationTime = userPasswordReset.getCreated ().getTime ();
-        Date validatedBy = new Date(tokenExpirationTime + TokensExpirationConstants.PASSWORD_TOKEN_EXP_TIME );
+        long tokenExpirationTime = userPasswordReset.getCreated().getTime();
+        Date validatedBy = new Date(tokenExpirationTime + TokensExpirationConstants.PASSWORD_TOKEN_EXP_TIME);
 
-        if ( ! new Date ().before ( validatedBy)  )
-            throw new PasswordResetTokenHasExpired ( "Password reset token " + token + " has expired" );
+        if (!new Date().before(validatedBy))
+            throw new PasswordResetTokenHasExpired("Password reset token " + token + " has expired");
 
-        User userToChange = userPasswordReset.getUser ();
+        User userToChange = userPasswordReset.getUser();
 
-        userToChange.setPassword ( passwordEncoder.encode ( password ) );
+        userToChange.setPassword(passwordEncoder.encode(password));
 
-        userPasswordReset.setStatus ( Status.NOT_ACTIVE );
-        userPasswordResetRepository.save ( userPasswordReset );
+        userPasswordReset.setStatus(Status.NOT_ACTIVE);
+        userPasswordResetRepository.save(userPasswordReset);
 
-        log.info ( "User {} has changed his password.", userToChange );
+        log.info("User {} has changed his password.", userToChange);
 
-        userRepository.save ( userToChange );
+        userRepository.save(userToChange);
     }
 
 
     @Override
-    public List<User> getAll () throws UsersResultIsEmptyException {
-        List<User> fetchedUsers = userRepository.findAll ();
+    public List<User> getAll() {
+        List<User> fetchedUsers = userRepository.findAll();
 
-        if (fetchedUsers.isEmpty ())
-            throw new UsersResultIsEmptyException ( "Users were not found" );
+        if (fetchedUsers.isEmpty())
+            throw new UsersResultIsEmptyException("Users were not found");
 
         log.info("IN getAll {} ", fetchedUsers);
         return fetchedUsers;
     }
 
     @Override
-    public User findByEmail ( String email ) throws UserWasNotFoundByEmailException {
-        User foundUser = userRepository.findByEmail ( email );
+    public User findByEmail(String email) {
+        User foundUser = userRepository.findByEmail(email);
         if (foundUser == null)
-            throw new UserWasNotFoundByEmailException ( "User with email " + email + " not found" );
-        log.info ( "findByEmail {}", foundUser );
+            throw new UserWasNotFoundByEmailException("User with email " + email + " not found");
+        log.info("findByEmail {}", foundUser);
         return foundUser;
     }
 
     @Override
-    public User findById ( Long id ) throws UserWasNotFoundException {
-        User foundUser = userRepository.findById ( id ).orElse ( null );
+    public User findById(Long id) {
+        User foundUser = userRepository.findById(id).orElse(null);
 
         if (foundUser == null)
-            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+            throw new UserWasNotFoundException("User with id " + id + " not found");
 
-        log.info ( "findById {}", foundUser );
+        log.info("findById {}", foundUser);
         return foundUser;
     }
 
 
     @Override
-    public void changeUser ( Long id , UserDTO userDTO ) throws UserWasNotFoundException, RolesAreInvalidException, AdminIsImmutableException {
+    public void changeUser(Long id, UserDTO userDTO) {
 
-        User foundUser = userRepository.findById ( id ).orElse ( null );
+        User foundUser = userRepository.findById(id).orElse(null);
 
         if (foundUser == null)
-            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+            throw new UserWasNotFoundException("User with id " + id + " not found");
 
-        if (foundUser.getRoles ().stream ().anyMatch ( role -> role.getName ().equals (  "ROLE_ADMIN" ) )) {
-            throw new AdminIsImmutableException ( "Admin is immutable" );
+        if (foundUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+            throw new AdminIsImmutableException("Admin is immutable");
         }
 
-        List<Role> providedRoles = userDTO.getRoles ();
-        Status providedStatus = userDTO.getStatus ();
+        List<Role> providedRoles = userDTO.getRoles();
+        Status providedStatus = userDTO.getStatus();
 
         if (providedRoles != null) {
 
             List<Role> rolesToAttach = providedRoles
-                    .stream ()
-                    .map ( role -> roleRepository.findByName ( role.getName ()) )
-                    .filter ( role -> role != null )
-                    .collect( Collectors.toList());
+                    .stream()
+                    .map(role -> roleRepository.findByName(role.getName()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-            if (rolesToAttach.size () != providedRoles.size ()) {
-                throw new RolesAreInvalidException ( "Roles are invalid" );
+            if (rolesToAttach.size() != providedRoles.size()) {
+                throw new RolesAreInvalidException("Roles are invalid");
             }
 
-            foundUser.setRoles ( rolesToAttach );
+            foundUser.setRoles(rolesToAttach);
 
         }
 
         if (providedStatus != null) {
-            foundUser.setStatus ( providedStatus );
+            foundUser.setStatus(providedStatus);
         }
 
-        userRepository.save ( foundUser );
+        userRepository.save(foundUser);
 
-        log.info ( "Updated user {}", foundUser );
+        log.info("Updated user {}", foundUser);
     }
 
 
     @Override
-    public void deleteUser ( Long id ) throws UserWasNotFoundException, AdminIsImmutableException {
+    public void deleteUser(Long id) {
 
-        User foundUser = userRepository.findById ( id ).orElse ( null );
+        User foundUser = userRepository.findById(id).orElse(null);
 
         if (foundUser == null)
-            throw new UserWasNotFoundException ( "User with id " + id + " not found" );
+            throw new UserWasNotFoundException("User with id " + id + " not found");
 
-        if (foundUser.getRoles ().stream ().anyMatch ( role -> role.getName ().equals (  "ROLE_ADMIN" ) )) {
-            throw new AdminIsImmutableException ( "Admin is immutable" );
+        if (foundUser.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"))) {
+            throw new AdminIsImmutableException("Admin is immutable");
         }
 
-        foundUser.setStatus ( Status.DELETED );
+        foundUser.setStatus(Status.DELETED);
 
-        userRepository.save ( foundUser );
+        userRepository.save(foundUser);
 
-        log.info ( "deleteById {}", id );
+        log.info("deleteById {}", id);
+    }
+
+    @Override
+    public void editProfile(UserDTO userDTO, User user) {
+
+        String providedFirstName = userDTO.getFirstName();
+        String providedLastName = userDTO.getLastName();
+
+        if (providedFirstName != null && !providedFirstName.equals(user.getFirstName()))
+            user.setFirstName(providedFirstName);
+
+        if (providedLastName != null && !providedLastName.equals(user.getLastName()))
+            user.setLastName(providedLastName);
+
+        User savedUser = userRepository.save(user);
+
+        log.info("Edited profile {}", savedUser);
     }
 
 }

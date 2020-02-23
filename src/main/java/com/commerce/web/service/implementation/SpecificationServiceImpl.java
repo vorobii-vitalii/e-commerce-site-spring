@@ -29,105 +29,107 @@ public class SpecificationServiceImpl implements SpecificationService {
     }
 
     @Override
-    public void addSpecification ( SpecificationDTO specificationDTO ) throws SpecificationNameIsTakenException {
+    public SpecificationDTO addSpecification(SpecificationDTO specificationDTO)  {
 
-        String name = specificationDTO.getName ();
+        String name = specificationDTO.getName();
 
-        if (specificationRepository.getSpecificationByName ( name) != null )
-            throw new SpecificationNameIsTakenException ( "Specification with name " + name + " is taken");
+        if (specificationRepository.getSpecificationByName(name) != null)
+            throw new SpecificationNameIsTakenException("Specification with name " + name + " is taken");
 
-        Specification addedSpecification = specificationRepository.save ( specificationDTO.toSpecification () );
+        Specification addedSpecification = specificationRepository.save(specificationDTO.toSpecification());
 
-        log.info ( "Added specification {}", addedSpecification );
+        log.info("Added specification {}", addedSpecification);
+
+        return SpecificationDTO.fromSpecification(addedSpecification);
     }
 
     @Override
-    public List<Specification> getAll () throws SpecificationResultIsEmptyException {
+    public List<Specification> getAll() {
 
-        List<Specification> specifications = specificationRepository.findAll ();
+        List<Specification> specifications = specificationRepository.findAll();
 
-        if (specifications.isEmpty ())
-            throw new SpecificationResultIsEmptyException ( "Specifications were not found" );
+        if (specifications.isEmpty())
+            throw new SpecificationResultIsEmptyException("Specifications were not found");
 
-        log.info ( "Fetched all specifications {}", specifications );
+        log.info("Fetched all specifications {}", specifications);
 
         return specifications;
     }
 
     @Override
-    public Specification getById ( Long id ) throws SpecificationNotFoundException {
+    public Specification getById(Long id) {
 
-        Specification foundSpecification = specificationRepository.findById ( id ).orElse ( null );
+        Specification foundSpecification = specificationRepository.findById(id).orElse(null);
 
-        if(foundSpecification == null)
-            throw new SpecificationNotFoundException ( "Specification with id " + id + " was not found" );
+        if (foundSpecification == null)
+            throw new SpecificationNotFoundException("Specification with id " + id + " was not found");
 
-        log.info ( "Got specification {} by id {}", foundSpecification, id );
+        log.info("Got specification {} by id {}", foundSpecification, id);
 
         return foundSpecification;
     }
 
     @Override
-    public Specification getByName ( String name ) throws SpecificationNotFoundByNameException {
+    public Specification getByName(String name) {
 
-        Specification foundSpecification = specificationRepository.getSpecificationByName ( name );
+        Specification foundSpecification = specificationRepository.getSpecificationByName(name);
 
         if (foundSpecification == null)
-            throw new SpecificationNotFoundByNameException ( name );
+            throw new SpecificationNotFoundByNameException(name);
 
-        log.info ( "Got specification {} by name {}", foundSpecification, name );
+        log.info("Got specification {} by name {}", foundSpecification, name);
 
         return foundSpecification;
     }
 
     @Override
-    public void editById ( Long id , EditSpecificationDTO editSpecificationDTO ) throws SpecificationNotFoundException, SpecificationNameIsTakenException {
+    public void editById(Long id, EditSpecificationDTO editSpecificationDTO) {
 
-        Specification foundSpecification = specificationRepository.getSpecificationById ( id );
+        Specification foundSpecification = specificationRepository.getSpecificationById(id);
 
         if (foundSpecification == null)
-            throw new SpecificationNotFoundException ( "Specification with id " + id + " was not found");
+            throw new SpecificationNotFoundException("Specification with id " + id + " was not found");
 
-        String providedName = editSpecificationDTO.getName ();
-        String providedFormattedName = editSpecificationDTO.getFormattedName ();
-        Status providedStatus = editSpecificationDTO.getStatus ();
+        String providedName = editSpecificationDTO.getName();
+        String providedFormattedName = editSpecificationDTO.getFormattedName();
+        Status providedStatus = editSpecificationDTO.getStatus();
 
-        if (providedName != null && !providedName.trim ().equals ( "" ) ) {
+        if (providedName != null && !providedName.trim().equals("")) {
 
-            Specification specificationByProvidedName = specificationRepository.getSpecificationByName ( providedName );
+            Specification specificationByProvidedName = specificationRepository.getSpecificationByName(providedName);
 
             if (specificationByProvidedName != null)
-                throw new SpecificationNameIsTakenException ( providedName );
+                throw new SpecificationNameIsTakenException(providedName);
 
-            foundSpecification.setName ( providedName );
+            foundSpecification.setName(providedName);
         }
 
-        if (providedFormattedName != null && !providedFormattedName.trim ().equals ( "" ) ) {
-            foundSpecification.setFormattedName ( providedFormattedName );
+        if (providedFormattedName != null && !providedFormattedName.trim().equals("")) {
+            foundSpecification.setFormattedName(providedFormattedName);
         }
 
         if (providedStatus != null) {
-            foundSpecification.setStatus ( providedStatus );
+            foundSpecification.setStatus(providedStatus);
         }
 
-        specificationRepository.save ( foundSpecification );
+        specificationRepository.save(foundSpecification);
 
-        log.info ( "Edited specification {}",foundSpecification );
+        log.info("Edited specification {}", foundSpecification);
     }
 
     @Override
-    public void deleteById ( Long id ) throws SpecificationNotFoundException {
+    public void deleteById(Long id) {
 
-        Specification specificationToDelete = specificationRepository.getSpecificationById ( id );
+        Specification specificationToDelete = specificationRepository.getSpecificationById(id);
 
         if (specificationToDelete == null)
-            throw new SpecificationNotFoundException ( "Specification with id " + id + " was not found");
+            throw new SpecificationNotFoundException("Specification with id " + id + " was not found");
 
-        specificationToDelete.setStatus ( Status.DELETED );
+        specificationToDelete.setStatus(Status.DELETED);
 
-        specificationRepository.save ( specificationToDelete );
+        specificationRepository.save(specificationToDelete);
 
-        log.info ( "Deleted specification {}", specificationToDelete );
+        log.info("Deleted specification {}", specificationToDelete);
     }
 
 

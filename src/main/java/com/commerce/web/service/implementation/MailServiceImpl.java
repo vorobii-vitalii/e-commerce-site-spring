@@ -17,8 +17,8 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void send ( SimpleMailMessage simpleMailMessage ) {
-        this.mailSender.send ( simpleMailMessage );
+    public void send(SimpleMailMessage simpleMailMessage) {
+        this.mailSender.send(simpleMailMessage);
     }
 
 }
