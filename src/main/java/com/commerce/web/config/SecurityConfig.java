@@ -12,8 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -44,31 +42,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean ();
+        return super.authenticationManagerBean();
     }
 
-    protected void configure( HttpSecurity http ) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception {
 
         http
-                .httpBasic ().disable ()
-                .csrf ().disable () // Disable CSRF
-                .cors ().and ()
-                .sessionManagement ().sessionCreationPolicy ( SessionCreationPolicy.STATELESS)
+                .httpBasic().disable()
+                .csrf().disable() // Disable CSRF
+                .cors().and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests ()
+                .authorizeRequests()
                 /*
                     Such endpoints as: login,register,verify and resend verification are permitted to all
                  */
-                .antMatchers ( LOGIN_ENDPOINT ).permitAll ()
-                .antMatchers ( REGISTER_ENDPOINT ).permitAll ()
-                .antMatchers ( VERIFY_USER_ENDPOINT ).permitAll ()
-                .antMatchers ( RESENT_VERIFY_USER_ENDPOINT ).permitAll ()
-                .antMatchers ( RESET_PASSWORD_ENDPOINT ).permitAll ()
-                .antMatchers ( FORGOT_PASSWORD_ENDPOINT ).permitAll ()
-                .antMatchers ( ADMIN_ENDPOINT).hasRole ( UserRolesConstants.ADMIN ) // Admin endpoints require role of Admin!
-                .anyRequest ().authenticated () // Other ones require basic authentication
-                .and ()
-                .apply ( new JwtConfigurer ( jwtTokenProvider)); // Apply custom JWT filter
+                .antMatchers(LOGIN_ENDPOINT).permitAll()
+                .antMatchers(REGISTER_ENDPOINT).permitAll()
+                .antMatchers(VERIFY_USER_ENDPOINT).permitAll()
+                .antMatchers(RESENT_VERIFY_USER_ENDPOINT).permitAll()
+                .antMatchers(RESET_PASSWORD_ENDPOINT).permitAll()
+                .antMatchers(FORGOT_PASSWORD_ENDPOINT).permitAll()
+                .antMatchers(ADMIN_ENDPOINT).hasRole(UserRolesConstants.ADMIN) // Admin endpoints require role of Admin!
+                .anyRequest().authenticated() // Other ones require basic authentication
+                .and()
+                .apply(new JwtConfigurer(jwtTokenProvider)); // Apply custom JWT filter
 
     }
 
