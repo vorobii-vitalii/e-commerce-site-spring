@@ -80,7 +80,7 @@ public class JwtUser implements UserDetails {
     }
 
     @Override
-    public String getUsername () {
+    public String getUsername() {
         return email;
     }
 

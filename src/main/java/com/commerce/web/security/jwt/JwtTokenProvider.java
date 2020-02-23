@@ -1,13 +1,9 @@
 package com.commerce.web.security.jwt;
 
-import com.commerce.web.exceptions.JwtAuthenthicationException;
 import com.commerce.web.model.Role;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,14 +29,16 @@ public class JwtTokenProvider {
     @Value("${jwt.token.expired}")
     private long validityInMilliseconds;
 
+    private final UserDetailsService userDetailsService;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    public JwtTokenProvider( @Qualifier(value = "jwt_user_details_service") UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        return bCryptPasswordEncoder;
+        return new BCryptPasswordEncoder();
     }
 
     @PostConstruct
@@ -76,7 +74,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
@@ -85,11 +83,7 @@ public class JwtTokenProvider {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
 
-            if (claims.getBody().getExpiration().before(new Date())) {
-                return false;
-            }
-
-            return true;
+            return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             return false;
             //throw new JwtAuthenthicationException ("JWT token is expired or invalid");
@@ -99,9 +93,7 @@ public class JwtTokenProvider {
     private List<String> getRoleNames(List<Role> userRoles) {
         List<String> result = new ArrayList<>();
 
-        userRoles.forEach(role -> {
-            result.add(role.getName());
-        });
+        userRoles.forEach(role -> result.add(role.getName()));
 
         return result;
     }

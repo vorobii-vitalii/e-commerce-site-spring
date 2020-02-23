@@ -7,12 +7,14 @@ import com.commerce.web.security.jwt.JwtUserFactory;
 import com.commerce.web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@Qualifier("jwt_user_details_service")
 @Slf4j
 public class JwtUserDetailsService implements UserDetailsService {
 
@@ -24,19 +26,18 @@ public class JwtUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public JwtUser loadUserByUsername ( String email ) throws UsernameNotFoundException{
+    public JwtUser loadUserByUsername(String email) throws UsernameNotFoundException {
 
         try {
 
-            User user = userService.findByEmail ( email );
+            User user = userService.findByEmail(email);
 
-            JwtUser jwtUser = JwtUserFactory.create ( user );
-            log.info ( "loadByUserName - user with email {} succesfully loaded", email );
+            JwtUser jwtUser = JwtUserFactory.create(user);
+            log.info("loadByUserName - user with email {} successfully loaded", email);
 
             return jwtUser;
-        }
-        catch(UserWasNotFoundByEmailException e) {
-            throw new UsernameNotFoundException ( "User with email " + email + " not found..." );
+        } catch (UserWasNotFoundByEmailException e) {
+            throw new UsernameNotFoundException("User with email " + email + " not found...");
         }
 
     }

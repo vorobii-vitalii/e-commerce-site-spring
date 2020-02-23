@@ -14,25 +14,25 @@ public final class JwtUserFactory {
 
     }
 
-    public static JwtUser create( User user) {
-        return new JwtUser (
-                user.getId (),
-                user.getFirstName (),
-                user.getLastName (),
-                user.getEmail (),
-                user.getPassword (),
-                mapToGrantedAuthorities ( user.getRoles () ),
-                user.getStatus ().equals ( Status.ACTIVE ),
-                user.getUpdated ()
+    public static JwtUser create(User user) {
+        return new JwtUser(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPassword(),
+                mapToGrantedAuthorities(user.getRoles()),
+                user.getStatus().equals(Status.ACTIVE),
+                user.getUpdated()
         );
     }
 
-    private static List<GrantedAuthority> mapToGrantedAuthorities( List<Role> userRoles) {
+    private static List<GrantedAuthority> mapToGrantedAuthorities(List<Role> userRoles) {
         return userRoles
-                .stream ()
-                .map( role ->
-                        new SimpleGrantedAuthority(role.getName ())
+                .stream()
+                .map(role ->
+                        new SimpleGrantedAuthority(role.getName())
                 )
-                .collect ( Collectors.toList ( ) );
+                .collect(Collectors.toList());
     }
 }
