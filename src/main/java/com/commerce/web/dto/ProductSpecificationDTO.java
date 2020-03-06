@@ -12,13 +12,13 @@ public class ProductSpecificationDTO {
 
     private String value;
 
-    public static ProductSpecificationDTO  fromProductSpecification( ProductSpecification productSpecification ) {
+    public static ProductSpecificationDTO fromProductSpecification(ProductSpecification productSpecification) {
 
-        ProductSpecificationDTO productSpecificationDTO = new ProductSpecificationDTO ();
+        ProductSpecificationDTO productSpecificationDTO = new ProductSpecificationDTO();
 
-        productSpecificationDTO.setName ( productSpecification.getSpecification ().getName () );
-        productSpecificationDTO.setFormattedName ( productSpecification.getSpecification ().getFormattedName () );
-        productSpecificationDTO.setValue ( productSpecification.getValue () );
+        productSpecificationDTO.setName(productSpecification.getSpecification().getName());
+        productSpecificationDTO.setFormattedName(productSpecification.getSpecification().getFormattedName());
+        productSpecificationDTO.setValue(productSpecification.getValue());
 
         return productSpecificationDTO;
     }

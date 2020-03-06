@@ -8,7 +8,8 @@ import javax.validation.constraints.NotEmpty;
 @Data
 public class VerifyAccountDTO {
 
-    @Email @NotEmpty
+    @Email
+    @NotEmpty
     private String email;
 
 }

@@ -3,8 +3,6 @@ package com.commerce.web.dto;
 import com.commerce.web.model.Role;
 import com.commerce.web.model.Status;
 import com.commerce.web.model.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -26,27 +24,27 @@ public class UserDTO {
 
     private List<Role> roles;
 
-    public User toUser() {
-        User user = new User ();
-        user.setId ( id );
-        user.setFirstName ( firstName );
-        user.setLastName ( lastName );
-        user.setEmail ( email );
-        user.setStatus ( status );
-        user.setRoles ( roles );
-
-        return user;
-    }
-
     public static UserDTO fromUser(User user) {
-        UserDTO userDTO = new UserDTO ();
-        userDTO.setId ( user.getId ( ) );
-        userDTO.setEmail ( user.getEmail () );
-        userDTO.setFirstName ( user.getFirstName () );
-        userDTO.setLastName ( user.getLastName () );
-        userDTO.setStatus ( user.getStatus () );
-        userDTO.setRoles ( user.getRoles () );
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setStatus(user.getStatus());
+        userDTO.setRoles(user.getRoles());
 
         return userDTO;
+    }
+
+    public User toUser() {
+        User user = new User();
+        user.setId(id);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setStatus(status);
+        user.setRoles(roles);
+
+        return user;
     }
 }

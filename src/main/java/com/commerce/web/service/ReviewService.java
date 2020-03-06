@@ -1,7 +1,6 @@
 package com.commerce.web.service;
 
 import com.commerce.web.dto.ReviewDTO;
-import com.commerce.web.exceptions.ProductNotFoundException;
 import com.commerce.web.model.User;
 
 import java.util.List;

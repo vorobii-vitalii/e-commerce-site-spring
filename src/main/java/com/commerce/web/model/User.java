@@ -4,8 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Set;
 
@@ -15,23 +13,17 @@ import java.util.Set;
 @Data
 public class User extends BaseEntity {
 
-    @Email
     @Column(name = "email", unique = true)
-    @NotBlank(message = "Email is mandatory")
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
     @Column(name = "password")
     private String password;
 
-    @NotBlank(message = "First name is mandatory")
     @Column(name = "first_name")
     private String firstName;
 
-    @NotBlank(message = "Last name is mandatory")
     @Column(name = "last_name")
     private String lastName;
-
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -7,14 +7,11 @@ import com.commerce.web.security.jwt.JwtUserFactory;
 import com.commerce.web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-@Qualifier("jwt_user_details_service")
 @Slf4j
 public class JwtUserDetailsService implements UserDetailsService {
 

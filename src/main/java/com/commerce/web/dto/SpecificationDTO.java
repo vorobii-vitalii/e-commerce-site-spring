@@ -19,21 +19,21 @@ public class SpecificationDTO {
 
     private Status status;
 
-    public Specification toSpecification() {
-        Specification specification = new Specification ();
-        specification.setName ( name );
-        specification.setFormattedName ( formattedName );
-        specification.setStatus ( Status.ACTIVE );
-        return specification;
+    public static SpecificationDTO fromSpecification(Specification specification) {
+        SpecificationDTO specificationDTO = new SpecificationDTO();
+        specificationDTO.setName(specification.getName());
+        specificationDTO.setFormattedName(specification.getFormattedName());
+        specificationDTO.setId(specification.getId());
+        specificationDTO.setStatus(specification.getStatus());
+        return specificationDTO;
     }
 
-    public static SpecificationDTO fromSpecification(Specification specification) {
-        SpecificationDTO specificationDTO = new SpecificationDTO ();
-        specificationDTO.setName ( specification.getName () );
-        specificationDTO.setFormattedName ( specification.getFormattedName () );
-        specificationDTO.setId (  specification.getId () );
-        specificationDTO.setStatus ( specification.getStatus () );
-        return specificationDTO;
+    public Specification toSpecification() {
+        Specification specification = new Specification();
+        specification.setName(name);
+        specification.setFormattedName(formattedName);
+        specification.setStatus(Status.ACTIVE);
+        return specification;
     }
 
 }

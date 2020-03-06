@@ -5,12 +5,12 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 @Data
 public class RegistrationRequestDTO {
 
-    @Email(message = "Email doesn't match with pattern") @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email doesn't match with pattern")
+    @NotBlank(message = "Email is mandatory")
     private String email;
 
     @NotBlank(message = "Password is mandatory")
@@ -25,12 +25,12 @@ public class RegistrationRequestDTO {
 
     public User toUser() {
 
-        User user = new User ();
+        User user = new User();
 
-        user.setEmail ( email );
-        user.setFirstName ( firstName );
-        user.setLastName ( lastName );
-        user.setPassword ( password );
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPassword(password);
 
         return user;
     }

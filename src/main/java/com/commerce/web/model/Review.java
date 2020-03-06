@@ -37,8 +37,7 @@ public class Review extends BaseEntity {
     @ManyToOne
     @JoinColumn(
             name = "parent_id",
-            referencedColumnName = "id",
-            nullable = false
+            referencedColumnName = "id"
     )
     private Review parent;
 

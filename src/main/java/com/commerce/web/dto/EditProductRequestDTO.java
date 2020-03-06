@@ -20,11 +20,11 @@ public class EditProductRequestDTO {
     private List<AddProductSpecificationDTO> productSpecifications;
 
     public Product toProduct() {
-        Product product = new Product ();
-        product.setName ( name );
-        product.setCost ( cost );
-        product.setDescription ( description );
-        product.setStatus ( status );
+        Product product = new Product();
+        product.setName(name);
+        product.setCost(cost);
+        product.setDescription(description);
+        product.setStatus(status);
         return product;
     }
 

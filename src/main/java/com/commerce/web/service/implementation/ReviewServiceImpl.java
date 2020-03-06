@@ -1,7 +1,10 @@
 package com.commerce.web.service.implementation;
 
 import com.commerce.web.dto.ReviewDTO;
-import com.commerce.web.exceptions.*;
+import com.commerce.web.exceptions.ProductNotFoundException;
+import com.commerce.web.exceptions.ReviewNotFoundException;
+import com.commerce.web.exceptions.ReviewOwnerWrongException;
+import com.commerce.web.exceptions.ReviewResultEmptyException;
 import com.commerce.web.mappers.ReviewMapper;
 import com.commerce.web.model.Product;
 import com.commerce.web.model.Review;
@@ -32,29 +35,23 @@ public class ReviewServiceImpl implements ReviewService {
         this.reviewMapper = new ReviewMapper();
     }
 
-    public static boolean isEmptyRequest(ReviewDTO reviewDTO) {
-        return reviewDTO.getContent() == null && reviewDTO.getRate() == null && reviewDTO.getStatus() == null;
-    }
-
     @Override
     public List<ReviewDTO> getByProduct(Long productId)  {
 
         Product product = productRepository.findById(productId).orElse(null);
 
-        log.info("PRODUCT {}", product);
-
         if (product == null)
             throw new ProductNotFoundException("Product with id " + productId + " was not found");
 
-        //List<Review> foundReviews = reviewRepository.findByProductAndParentNull(product);
-        List<Review> foundReviews = reviewRepository.findAll();
+        List<Review> foundReviews = reviewRepository.findByProductAndParentNull(product);
 
         if (foundReviews.isEmpty())
             throw new ReviewResultEmptyException("Reviews were not found");
 
-        log.info("Fetched reviews: {}", foundReviews);
+        List<ReviewDTO> foundReviewDTOs = foundReviews.stream().map(reviewMapper::to).collect(Collectors.toList());
 
-        return foundReviews.stream().map(reviewMapper::to).collect(Collectors.toList());
+        log.info("Fetched reviews: {}", foundReviews);
+        return foundReviewDTOs;
     }
 
     @Override
@@ -64,69 +61,65 @@ public class ReviewServiceImpl implements ReviewService {
 
         log.info("FOUND REVIEW {}", review);
 
-        if (review == null)
+        if (review == null) {
             throw new ReviewNotFoundException("Review with id " + id + " not found");
+        }
 
-        log.info("Fetched review {} by id {}", review, id);
+        ReviewDTO reviewDTO = reviewMapper.to(review);
 
-        return reviewMapper.to(review);
+        log.info("Fetched review {} by id {}", reviewDTO, id);
+
+        return reviewDTO;
     }
 
     @Override
     public List<ReviewDTO> getByParent(Long id) {
 
-        Review parentReview = reviewRepository.findById(id).orElse(null);
-
-        if (parentReview == null)
+        Review parentReview = reviewRepository.findById(id).orElseThrow(() -> {
             throw new ReviewNotFoundException("Parent review with id " + id + " was not found");
+        });
 
         List<Review> childrenReviews = parentReview.getChildren();
 
         if (childrenReviews.isEmpty())
             throw new ReviewResultEmptyException("Children reviews were not found");
 
-        log.info("Fetched children comments {} by parent id {}", childrenReviews, parentReview);
+        List<ReviewDTO> childrenReviewDTOs = childrenReviews.stream().map(reviewMapper::to).collect(Collectors.toList());
 
-        return childrenReviews.stream().map(reviewMapper::to).collect(Collectors.toList());
+        log.info("Fetched children reviews {} by parent id {}", childrenReviewDTOs, parentReview);
+
+        return childrenReviewDTOs;
     }
 
     @Override
     public ReviewDTO addReview(Long productId, ReviewDTO reviewDTO, User requestUser) {
 
-        if (ReviewServiceImpl.isEmptyRequest(reviewDTO))
-            throw new ReviewEmptyRequestException("Empty request");
-
         Review reviewToAdd = reviewMapper.from(reviewDTO);
         reviewToAdd.setAuthor(requestUser);
 
-        Product product = productRepository.findById(productId).orElse(null);
-
-        if (product == null) throw new ProductNotFoundException("Product was not found");
-        reviewToAdd.setProduct(product);
+        Product product = productRepository.findById(productId).orElseThrow(() -> {
+            throw new ProductNotFoundException("Product was not found");
+        });
 
         reviewToAdd.setStatus(Status.ACTIVE);
+        reviewToAdd.setProduct(product);
 
-        Review addedReview = reviewRepository.save(reviewToAdd);
+        ReviewDTO addedReview = reviewMapper.to(reviewRepository.save(reviewToAdd));
+
         log.info("Added review {}", addedReview);
 
-        return reviewMapper.to(addedReview);
+        return addedReview;
     }
 
     @Override
     public ReviewDTO addReviewToParent(ReviewDTO reviewDTO, Long parentId, User requestUser) {
 
-        if (ReviewServiceImpl.isEmptyRequest(reviewDTO))
-            throw new ReviewEmptyRequestException("Empty request");
-
-        log.info("REQUEST giAN {} PARENT IDD {}", reviewDTO, parentId);
-
         Review reviewToAdd = reviewMapper.from(reviewDTO);
         reviewToAdd.setAuthor(requestUser);
 
-        Review parentReview = reviewRepository.findById(parentId).orElse(null);
-
-        if (parentReview == null)
+        Review parentReview = reviewRepository.findById(parentId).orElseThrow(() -> {
             throw new ReviewNotFoundException("Parent review with id " + parentId + " not found.");
+        });
 
         // Set not-null parent to review
         reviewToAdd.setParent(parentReview);
@@ -138,20 +131,17 @@ public class ReviewServiceImpl implements ReviewService {
         reviewToAdd.setStatus(Status.ACTIVE);
 
         // Save review in database
-        Review savedReview = reviewRepository.save(reviewToAdd);
+        ReviewDTO savedReview = reviewMapper.to(reviewRepository.save(reviewToAdd));
 
-        log.info("Added review {} to parent review {}", savedReview, parentReview);
+        log.info("Added review {} to parent review {}", savedReview, reviewMapper.to(parentReview));
 
-        return reviewMapper.to(savedReview);
+        return savedReview;
     }
 
     @Override
     public ReviewDTO editReview(ReviewDTO reviewDTO, Long id, User requestUser) {
 
-        if (ReviewServiceImpl.isEmptyRequest(reviewDTO))
-            throw new ReviewEmptyRequestException("Empty request");
-
-        Review reviewToEdit = reviewRepository.findById(id).orElse(null);
+        Review reviewToEdit = reviewRepository.getById(id);
 
         if (reviewToEdit == null)
             throw new ReviewNotFoundException("Review with id " + id + " was not found");
@@ -165,17 +155,17 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewDTO.getContent() != null)
             reviewToEdit.setContent(reviewDTO.getContent());
 
-        Review savedReview = reviewRepository.save(reviewToEdit);
+        ReviewDTO savedReviewDTO = reviewMapper.to(reviewRepository.save(reviewToEdit));
 
-        log.info("Edited review {}", savedReview);
+        log.info("Edited review {}", savedReviewDTO);
 
-        return reviewMapper.to(savedReview);
+        return savedReviewDTO;
     }
 
     @Override
     public void deleteReview(Long id, User requestUser) {
 
-        Review reviewToDelete = reviewRepository.findById(id).orElse(null);
+        Review reviewToDelete = reviewRepository.getById(id);
 
         if (reviewToDelete == null)
             throw new ReviewNotFoundException("Review with id " + id + " was not found");
@@ -187,7 +177,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review deletedReview = reviewRepository.save(reviewToDelete);
 
-        log.info("Deleted review {}", deletedReview);
+        log.info("Deleted review {}", reviewMapper.to(deletedReview));
     }
 
 }

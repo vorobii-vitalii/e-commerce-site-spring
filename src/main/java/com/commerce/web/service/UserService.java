@@ -1,7 +1,6 @@
 package com.commerce.web.service;
 
 import com.commerce.web.dto.UserDTO;
-import com.commerce.web.exceptions.*;
 import com.commerce.web.model.User;
 
 import java.util.List;
@@ -29,4 +28,5 @@ public interface UserService {
     void deleteUser(Long id);
 
     void editProfile(UserDTO userDTO, User user);
+
 }

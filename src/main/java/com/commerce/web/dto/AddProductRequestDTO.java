@@ -22,11 +22,11 @@ public class AddProductRequestDTO {
     private List<AddProductSpecificationDTO> productSpecifications;
 
     public Product toProduct() {
-        Product product = new Product ();
-        product.setName ( name );
-        product.setCost ( cost );
-        product.setDescription ( description );
-        product.setStatus ( Status.ACTIVE );
+        Product product = new Product();
+        product.setName(name);
+        product.setCost(cost);
+        product.setDescription(description);
+        product.setStatus(Status.ACTIVE);
         return product;
     }
 
